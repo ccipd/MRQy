@@ -75,9 +75,17 @@ The measures of the ImageQC tool are listed in the following table
 |   __SNR1__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566763.jpg)|
 |   __SNR2__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566845.jpg), patch: 5 * 5  square patch with center the maximum intensity value of the image    |
 |   __SNR3__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566876.jpg)  |
-|   __SNR4__  | signal to noise ratio| ![]()$ \dfrac{\sum(\rm{patch} - \rm{background})}{\sigma_{\rm{background}}}$    |
-|   __SNR5__  | signal to noise ratio| ![]()$ \dfrac{\mu_{\rm{patch}}}{\sigma_{\rm{patch}}}$    |
-|   __CNR__  | contrast to noise ratio| ![]()$ \dfrac{\mu_{\rm{patch}-\rm{background \ patch}}}{\sigma_{\rm{background \ patch}}}$| 
-|   __CVP__  | coefficient of variation of patch| ![]()$ \dfrac{\sigma_{\rm{patch}}}{\mu_{\rm{patch}}}$|
+|   __SNR4__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566995.jpg)    |
+|   __SNR5__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570567015.jpg)   |
+|   __CNR__  | contrast to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570567041.jpg)| 
+|   __CVP__  | coefficient of variation of patch| ![](http://www.sciweavers.org/download/Tex2Img_1570567065.jpg)|
 |   __EFC__  | entropy focus criterion| Shannon entropy of the foreground image voxel intensites|
-|   __FBER__  | foreground-background energy ratio $\ \ $| ![]()$ \dfrac{\rm{MED}(\rm{foreground}^2)}{\rm{MED}(\rm{background}^2)}$, MED: median|
+|   __FBER__  | foreground-background energy ratio $\ \ $| ![](http://www.sciweavers.org/download/Tex2Img_1570567104.jpg), MED: median|
+
+Reference for the last two measures is  https://mriqc.readthedocs.io/en/stable/.
+
+### User Interface
+
+The following figures show the user interface of the tool (index.html). 
+
+![](https://drive.google.com/file/d/1G1v1bUN3nRtBexeGBD7i8sVyZslFA4rF/view?usp=sharing)
