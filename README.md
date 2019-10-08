@@ -64,13 +64,13 @@ The measures of the ImageQC tool are listed in the following table
 
 | Measure |  Description  |  Formula |
 |---------|------------| ---------------------|
-|   __VR_x__, __V_y__, __VR_z__ $\ \ $| voxel resolution in x, y, z| _ |
+|   __VR_x__, __V_y__, __VR_z__ | voxel resolution in x, y, z| _ |
 |   __Rows__, __Columns__  | Rows, Columns| _ |
 |   __Number__  | number of slice| _ |
 |   __Mean__  |  mean of foreground| _ |
 |   __Range__  | range of foreground| _ |
-|   __CV__  | coefficient of variation of foreground| $\dfrac{\sigma_{\rm{foreground}}}{\mu_{\rm{forground}}}$ |
-|   __CPP__  | contrast per pixel of foreground|  mean(conv2(foreground image, filter)), filter: $3 \times 3 $ with 8 in center and -1 others|
+|   __CV__  | foreground coefficient of variation| ![](http://www.sciweavers.org/download/Tex2Img_1570566359.jpg) |
+|   __CPP__  | contrast per pixel of foreground| ![](http://www.sciweavers.org/download/Tex2Img_1570566532.jpg), filter: 3 \times 3  with 8 in center and -1 others|
 |   __PSNR__  | peak signal to noise ratio| $20 \log_{10} \dfrac{\rm{max{(F)}}}{\rm{MSE}}$, MSE: mean squared error between foreground and median filter $5 \times 5 $ over the foreground   |
 |   __SNR1__  | signal to noise ratio| $ \dfrac{\mu_{\rm{foreground}}}{\sigma_{\rm{background}}}$    |
 |   __SNR2__  | signal to noise ratio| $ \dfrac{\mu_{\rm{patch}}}{\sigma_{\rm{background \ patch}}}$, patch: $5 \times 5 $ square patch with center the maximum intensity value of the image    |
