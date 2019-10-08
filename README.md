@@ -5,7 +5,7 @@ ImageQC is a tool for the quality control of computed tomography (CT) and magnet
 ## Description
 
 
-This tool takes some CT or MRI slices with (_.dcm_, _.nii_, _.IMA_ or _.mha_) file format as the input. Then uses two Python scripts (_QC.py_ and _QCF.py_) to generate some criteria for the quality assessment. Finally, the calculated measures which are saved in a _.tsv_ file and _.png_ thumbnail of input images are fed to the bunch of _.js_ scripts to create the user interface (_index.html_) output. The schematic framework of the tool is as follows:
+This tool takes some CT or MRI slices with (_.dcm_, _.nii_, _.ima_ or _.mha_) file format as the input. Then uses two Python scripts (_QC.py_ and _QCF.py_) to generate some criteria for the quality assessment. Finally, the calculated measures which are saved in a  _.tsv_ file and  also the _.png_ thumbnail of input images are fed to the bunch of _.js_ scripts to create the user interface (_index.html_) output. The schematic framework of the tool is as follows:
 
 
 
@@ -22,7 +22,7 @@ The required Python packages are listed in the following
 ### Specific packages:
 
 Based on your input files format you can install one of the following packages: 
-1. medpy (for _.mha_ files), 2. pydicom (for _.dcm_ files), and 3. nibabel (for _.nii_)
+1. medpy (for _.mha_ files), 2. pydicom (for _.dcm_ files), and 3. nibabel (for _.nii_ files)
 
 
 
