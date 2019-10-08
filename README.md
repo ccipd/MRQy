@@ -18,7 +18,7 @@ The required Python packages are listed in the following
 
 ### General packages:
 
-1. os, 2. argparse, 3. numpy, 4. datetime, 5. time, 6. matplotlib, 7. Random, 8. Scipy, and 9. skimage
+1. os, 2. argparse, 3. numpy, 4. datetime, 5. time, 6. matplotlib, 7. Scipy, and 8. skimage
 
 ### Specific packages:
 
@@ -45,7 +45,7 @@ optional arguments:
   -h, --help            show this help message and exit
   -o OUTDIR, --outdir OUTDIR
                         a subfolder on the Data directory of the UserInterface
-                        i.e. E:\Python_Codes\Github\UserInterface\Data
+                        i.e. E:\Python_Codes\Github\UserInterface\Data\Output
 ```
 Standard usage is to run ``` QC.py –o output directory “input directory” ``` i.e. 
 
@@ -53,4 +53,6 @@ Standard usage is to run ``` QC.py –o output directory “input directory” `
 python QC.py -o E:\Python_Codes\Github\UserInterface\Data\Output "E:\Data\Rectal\RectalCancer_Multisite\UH"
 
 ```
-There is no need to make a subfolder in the Data directory, just specify its name in the command line like above code line.
+There is no need to make a subfolder in the Data directory, just specify its name in the command like above code line.
+
+
