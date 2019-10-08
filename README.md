@@ -70,14 +70,14 @@ The measures of the ImageQC tool are listed in the following table
 |   __Mean__  |  mean of foreground| _ |
 |   __Range__  | range of foreground| _ |
 |   __CV__  | foreground coefficient of variation| ![](http://www.sciweavers.org/download/Tex2Img_1570566359.jpg) |
-|   __CPP__  | contrast per pixel of foreground| ![](http://www.sciweavers.org/download/Tex2Img_1570566532.jpg), filter: 3 \times 3  with 8 in center and -1 others|
-|   __PSNR__  | peak signal to noise ratio| $20 \log_{10} \dfrac{\rm{max{(F)}}}{\rm{MSE}}$, MSE: mean squared error between foreground and median filter $5 \times 5 $ over the foreground   |
-|   __SNR1__  | signal to noise ratio| $ \dfrac{\mu_{\rm{foreground}}}{\sigma_{\rm{background}}}$    |
-|   __SNR2__  | signal to noise ratio| $ \dfrac{\mu_{\rm{patch}}}{\sigma_{\rm{background \ patch}}}$, patch: $5 \times 5 $ square patch with center the maximum intensity value of the image    |
-|   __SNR3__  | signal to noise ratio| $ \dfrac{\mu_{\rm{patch}}}{\sigma_{\rm{patch} - \mu_{\rm{patch}}}}$    |
-|   __SNR4__  | signal to noise ratio| $ \dfrac{\sum(\rm{patch} - \rm{background})}{\sigma_{\rm{background}}}$    |
-|   __SNR5__  | signal to noise ratio| $ \dfrac{\mu_{\rm{patch}}}{\sigma_{\rm{patch}}}$    |
-|   __CNR__  | contrast to noise ratio| $ \dfrac{\mu_{\rm{patch}-\rm{background \ patch}}}{\sigma_{\rm{background \ patch}}}$| 
-|   __CVP__  | coefficient of variation of patch| $ \dfrac{\sigma_{\rm{patch}}}{\mu_{\rm{patch}}}$|
+|   __CPP__  | contrast per pixel of foreground| mean(conv2(foreground image, filter)), filter: 3 * 3  with 8 in center and -1 others|
+|   __PSNR__  | peak signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566645.jpg), MSE: mean squared error between foreground and median filter 5 * 5  over the foreground   |
+|   __SNR1__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566763.jpg)|
+|   __SNR2__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566845.jpg), patch: 5 * 5  square patch with center the maximum intensity value of the image    |
+|   __SNR3__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566876.jpg)  |
+|   __SNR4__  | signal to noise ratio| ![]()$ \dfrac{\sum(\rm{patch} - \rm{background})}{\sigma_{\rm{background}}}$    |
+|   __SNR5__  | signal to noise ratio| ![]()$ \dfrac{\mu_{\rm{patch}}}{\sigma_{\rm{patch}}}$    |
+|   __CNR__  | contrast to noise ratio| ![]()$ \dfrac{\mu_{\rm{patch}-\rm{background \ patch}}}{\sigma_{\rm{background \ patch}}}$| 
+|   __CVP__  | coefficient of variation of patch| ![]()$ \dfrac{\sigma_{\rm{patch}}}{\mu_{\rm{patch}}}$|
 |   __EFC__  | entropy focus criterion| Shannon entropy of the foreground image voxel intensites|
-|   __FBER__  | foreground-background energy ratio $\ \ $| $ \dfrac{\rm{MED}(\rm{foreground}^2)}{\rm{MED}(\rm{background}^2)}$, MED: median|
+|   __FBER__  | foreground-background energy ratio $\ \ $| ![]()$ \dfrac{\rm{MED}(\rm{foreground}^2)}{\rm{MED}(\rm{background}^2)}$, MED: median|
