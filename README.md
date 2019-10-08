@@ -88,4 +88,7 @@ Reference for the last two measures is  https://mriqc.readthedocs.io/en/stable/.
 
 The following figures show the user interface of the tool (index.html). 
 
-![](https://drive.google.com/file/d/1G1v1bUN3nRtBexeGBD7i8sVyZslFA4rF/view?usp=sharing)
+![ui1](https://user-images.githubusercontent.com/50635618/66433517-7a02c180-e9ee-11e9-8949-5849e89ecaf7.png)
+![ui2](https://user-images.githubusercontent.com/50635618/66433515-796a2b00-e9ee-11e9-9ffb-44c130f81533.png)
+![ui3](https://user-images.githubusercontent.com/50635618/66433516-796a2b00-e9ee-11e9-9139-07ed57ee342c.png)
+
