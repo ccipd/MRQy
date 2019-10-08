@@ -54,5 +54,5 @@ python QC.py -o E:\Python_Codes\Github\UserInterface\Data\Output "E:\Data\Rectal
 
 ```
 There is no need to make a subfolder in the Data directory, just specify its name in the command like above code line.
-
+Every action will be print in the output console. Afterward, double click index.html (on e.g. E:\Python_Codes\Github\UserInterface) to open front end user interface, select the respective results.tsv file from the E:\Python_Codes\Github\UserInterface\Data\Output directory.
 
