@@ -54,5 +54,30 @@ python QC.py -o E:\Python_Codes\Github\UserInterface\Data\Output "E:\Data\Rectal
 
 ```
 There is no need to make a subfolder in the Data directory, just specify its name in the command like above code line.
-Every action will be print in the output console. Afterward, double click index.html (on e.g. E:\Python_Codes\Github\UserInterface) to open front end user interface, select the respective results.tsv file from the E:\Python_Codes\Github\UserInterface\Data\Output directory.
+Every action will be print in the output console. The thumbnail images in the format of _.png_ will be saved on E:\Python_Codes\Github\UserInterface\Data with its original filename as its subfolder's name. Afterward, double click index.html (on e.g. E:\Python_Codes\Github\UserInterface) to open front end user interface, select the respective results.tsv file from the E:\Python_Codes\Github\UserInterface\Data\Output directory.
 
+## Basic Information 
+
+### Measurements
+
+The measures of the ImageQC tool are listed in the following table
+
+| Measure |  Description  |  Formula |
+|---------|------------| ---------------------|
+|   __VR_x__, __V_y__, __VR_z__ $\ \ $| voxel resolution in x, y, z| _ |
+|   __Rows__, __Columns__  | Rows, Columns| _ |
+|   __Number__  | number of slice| _ |
+|   __Mean__  |  mean of foreground| _ |
+|   __Range__  | range of foreground| _ |
+|   __CV__  | coefficient of variation of foreground| $\dfrac{\sigma_{\rm{foreground}}}{\mu_{\rm{forground}}}$ |
+|   __CPP__  | contrast per pixel of foreground|  mean(conv2(foreground image, filter)), filter: $3 \times 3 $ with 8 in center and -1 others|
+|   __PSNR__  | peak signal to noise ratio| $20 \log_{10} \dfrac{\rm{max{(F)}}}{\rm{MSE}}$, MSE: mean squared error between foreground and median filter $5 \times 5 $ over the foreground   |
+|   __SNR1__  | signal to noise ratio| $ \dfrac{\mu_{\rm{foreground}}}{\sigma_{\rm{background}}}$    |
+|   __SNR2__  | signal to noise ratio| $ \dfrac{\mu_{\rm{patch}}}{\sigma_{\rm{background \ patch}}}$, patch: $5 \times 5 $ square patch with center the maximum intensity value of the image    |
+|   __SNR3__  | signal to noise ratio| $ \dfrac{\mu_{\rm{patch}}}{\sigma_{\rm{patch} - \mu_{\rm{patch}}}}$    |
+|   __SNR4__  | signal to noise ratio| $ \dfrac{\sum(\rm{patch} - \rm{background})}{\sigma_{\rm{background}}}$    |
+|   __SNR5__  | signal to noise ratio| $ \dfrac{\mu_{\rm{patch}}}{\sigma_{\rm{patch}}}$    |
+|   __CNR__  | contrast to noise ratio| $ \dfrac{\mu_{\rm{patch}-\rm{background \ patch}}}{\sigma_{\rm{background \ patch}}}$| 
+|   __CVP__  | coefficient of variation of patch| $ \dfrac{\sigma_{\rm{patch}}}{\mu_{\rm{patch}}}$|
+|   __EFC__  | entropy focus criterion| Shannon entropy of the foreground image voxel intensites|
+|   __FBER__  | foreground-background energy ratio $\ \ $| $ \dfrac{\rm{MED}(\rm{foreground}^2)}{\rm{MED}(\rm{background}^2)}$, MED: median|
