@@ -78,7 +78,7 @@ The measures of the ImageQC tool are listed in the following table
 |   __SNR4__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566995.jpg)    |
 |   __SNR5__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570567015.jpg)   |
 |   __CNR__  | contrast to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570567041.jpg)| 
-|   __CVP__  | coefficient of variation of patch| ![](http://www.sciweavers.org/download/Tex2Img_1570567065.jpg)|
+|   __CVP__  | patch coefficient of variation| ![](http://www.sciweavers.org/download/Tex2Img_1570567065.jpg)|
 |   __EFC__  | entropy focus criterion| Shannon entropy of the foreground image voxel intensites|
 |   __FBER__  | foreground-background energy ratio $\ \ $| ![](http://www.sciweavers.org/download/Tex2Img_1570567104.jpg), MED: median|
 
