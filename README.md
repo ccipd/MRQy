@@ -18,7 +18,7 @@ The required Python packages are listed in the following
 
 ### General packages:
 
-1. os, 2. argparse, 3. numpy, 4. datetime, 5. time, 6. matplotlib, 7. Scipy, 8. skimage, and 9. cv2
+1. os, 2. argparse, 3. numpy, 4. datetime, 5. time, 6. matplotlib, 7. Scipy, and 8. skimage
 
 ### Specific packages:
 
