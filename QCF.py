@@ -192,9 +192,10 @@ def efc(img, foreground, background):
 
 def fber(img, foreground, background):
     fg_mu = np.median(np.abs(img[foreground > 0]) ** 2)
+    
     airmask = np.ones_like(foreground, dtype=np.uint8)
     airmask[foreground > 0] = 0
     bg_mu = np.median(np.abs(img[airmask == 1]) ** 2)
-    if abs(bg_mu) < 1.0e-3:
+    if abs(bg_mu) < 1.0e-3 or np.isnan(bg_mu): 
         return 0
     return float(np.abs(fg_mu / bg_mu))
