@@ -10,7 +10,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-sample_size = 3
+sample_size = 1 # number of slice's samples for measure computation per patient
 
 class BaseVolume(dict):
 
