@@ -1,6 +1,6 @@
-# ImageQC
+# MRQy
 
-ImageQC tool is a new version of the HistoQC for the quality control of computed tomography (CT) and magnetic resonance imaging (MRI) modalities.
+MRQy tool is a new version of the HistoQC for the quality control of computed tomography (CT) and magnetic resonance imaging (MRI) modalities.
 
 ## Description
 
