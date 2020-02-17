@@ -1,11 +1,11 @@
 # MRQy
 
-MRQy tool is a new version of the HistoQC for the quality control of computed tomography (CT) and magnetic resonance imaging (MRI) modalities.
+MRQy tool is a new quality assessment and evaluation tool for magnetic resonance imaging (MRI) data.
 
 ## Description
 
 
-This tool takes some CT or MRI slices with (_.dcm_, _.nii_, _.ima_ or _.mha_) file format as the input. Then uses two Python scripts (_QC.py_ and _QCF.py_) to generate some criteria for the quality assessment. Finally, the calculated measures which are saved in a  _.tsv_ file and  also the _.png_ thumbnail of input images are fed to the bunch of _.js_ scripts to create the user interface (_index.html_) output. The schematic framework of the tool is as follows:
+This tool takes MRI datasets in the file formats (_.dcm_, _.nii_, _.ima_ or _.mha_) as the input. Two Python scripts (_QC.py_ and _QCF.py_) are used to generate several tag and noise/information measurements for quality assessment. These scripts save the calculated measures in a  _.tsv_ file as well generate _.png_ thumbnails for all images in a subject volume. These are then fed to the bunch of _.js_ scripts to create the user interface (_index.html_) output. The schematic framework of the tool is as follows:
 
 
 
@@ -22,7 +22,7 @@ The required Python packages are listed in the following
 
 ### Specific packages:
 
-Based on your input files format you can install one of the following packages: 
+Based on your input files format you may have to install one or more of the following packages: 
 1. medpy (for _.mha_ files), 2. pydicom (for _.dcm_ files), and 3. nibabel (for _.nii_ files)
 
 
@@ -92,3 +92,8 @@ The following figures show the user interface of the tool (index.html).
 ![ui2](https://user-images.githubusercontent.com/50635618/66433515-796a2b00-e9ee-11e9-9ffb-44c130f81533.png)
 ![ui3](https://user-images.githubusercontent.com/50635618/66433516-796a2b00-e9ee-11e9-9139-07ed57ee342c.png)
 
+### Feedback and usage
+
+Please report and issues, bugfixes, ideas for enhancements via the "Issues" tab
+
+If you do use the tool in your own work, please drop us a line to let us know.
