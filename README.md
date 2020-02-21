@@ -64,6 +64,8 @@ Every action will be print in the output console. The thumbnail images in the fo
 
 The measures of the ImageQC tool are listed in the following table
 
+![ui3](https://user-images.githubusercontent.com/50635618/75051496-ff69a880-549b-11ea-8d7d-7a5a889aa81f.PNG)
+
 | Measure |  Description  |  Formula |
 |---------|------------| ---------------------|
 |   __Manufacturer__ | Manufacturer| _ |
