@@ -24,7 +24,8 @@ The current version of the tool has been tested on the Python vresion 3.7.4. The
 
 Based on your input files format you may have to install one or more of the following packages: 
 1. medpy (for _.mha_, _.nii_, and _.nii.gz_ files) and 2. pydicom (for _.dcm_ files)
-The t-SNE and UMAP plots work with the sklearn and umap (umap-learn) packeges respectively. 
+
+2. The t-SNE and UMAP plots work with the sklearn and umap (umap-learn) packeges respectively. 
 
 
 ## Running
