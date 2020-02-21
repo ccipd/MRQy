@@ -1,29 +1,105 @@
+"""
+Created on Sat Feb  8 17:46:40 2020
+
+@author: Amir Reza Sadri
+
+"""
+
 import os
-import argparse
 import numpy as np
+import argparse
 import datetime
 import QCF
 import time
-from medpy.io import load
+from medpy.io import load    # for .mha, .nii, or .nii.gz files
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import pydicom               # for .dcm files
+from itertools import accumulate
+import pandas as pd
+from scipy.cluster.vq import whiten
+from sklearn.manifold import TSNE
+import umap
+import warnings        
+warnings.filterwarnings("ignore")    # remove all warnings like conversion thumbnails
 
 nfiledone = 0
 csv_report = None
 first = True
 headers = []
 
+
 def patient_name(root):
-    return  [i.path for i in os.scandir(root)]
+    print('MRQy is starting....')
+    files = [os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(root) 
+            for filename in filenames 
+            if filename.endswith('.dcm') 
+            or filename.endswith('.mha')
+            or filename.endswith('.nii')
+            or filename.endswith('.gz')]
+    dicoms = [i for i in files if i.endswith('.dcm')]
+    mhas = [i for i in files 
+            if i.endswith('.mha')
+            or i.endswith('.nii')
+            or i.endswith('.gz')]
+    mhas_subjects = [os.path.basename(scan)[:os.path.basename(scan).index('.')] for scan in mhas]
+    dicom_subjects = []
+    for i in dicoms:
+        dicom_subjects.append(pydicom.dcmread(i).PatientID)  
+    duplicateFrequencies = {}
+    for i in dicom_subjects:
+        duplicateFrequencies[i] = dicom_subjects.count(i)
+    subjects_id = []
+    subjects_number = []
+    for i in range(len(duplicateFrequencies)):
+         subjects_id.append(list(duplicateFrequencies.items())[i][0])
+         subjects_number.append(list(duplicateFrequencies.items())[i][1])
+    ind = [0] + list(accumulate(subjects_number))
+    splits = [dicoms[ind[i]:ind[i+1]] for i in range(len(ind)-1)]
+    subjects = subjects_id + mhas_subjects
+    print('The number of patients is {}'.format(len(subjects)))
+    return files, subjects, splits, mhas, mhas_subjects
 
 
-def volume(scan):
+def volume_dicom(scans):   
+    inf = pydicom.dcmread(scans[0])
+    if hasattr(inf, 'MagneticFieldStrength'):
+        if inf.MagneticFieldStrength > 10:
+            inf.MagneticFieldStrength = inf.MagneticFieldStrength/10000
+    else:
+        inf.MagneticFieldStrength = ''
+    tags = {
+             'ID': inf.PatientID,
+             'Manufacturer': inf.Manufacturer,
+             'VR_x': format(inf.PixelSpacing[0], '.2f'),
+             'VR_y': format(inf.PixelSpacing[1], '.2f'),
+             'VR_z': format(inf.SliceThickness, '.2f'),
+             'MFS': inf.MagneticFieldStrength,
+             'Rows': int(inf.Rows),
+             'Columns': int(inf.Columns),
+             'TR': format(inf.RepetitionTime, '.2f'),
+             'TE': format(inf.EchoTime, '.2f'),
+             'Number': len(scans)
+    }
+    
+    slices = [pydicom.read_file(s) for s in scans]
+    slices.sort(key = lambda x: int(x.InstanceNumber))
+    images = np.stack([s.pixel_array for s in slices])
+    images = images.astype(np.int64)
+    return images, tags
+
+def volume_notdicom(scan, name):
     image_data, image_header = load(scan)
     images = [image_data[:,:,i] for i in range(np.shape(image_data)[2])]
-    ad = os.path.split(scan)
-    return images, os.path.split(ad[1][:-4])[1], image_header
+    return images, name, image_header      
+    
+def saveThumbnails_dicom(v, output):
+    os.makedirs(output + os.sep + v[1]['ID'])
+    for i in range(len(v[0])):
+        plt.imsave(output + os.sep + v[1]['ID'] + os.sep + v[1]['ID'] + '(%d).png' % i, v[0][i], cmap = cm.Greys_r)
+        print('image number %d out of %d is saved to %s' % (int(i+1), len(v[0]),output + os.sep + v[1]['ID']))
 
-def saveThumbnails(v, output):
+def saveThumbnails_nondicom(v, output):
     os.makedirs(output + os.sep + v[1])
     for i in range(len(v[0])):
         plt.imsave(output + os.sep + v[1] + os.sep + v[1] + '(%d).png' % int(i+1), v[0][i], cmap = cm.Greys_r)
@@ -32,7 +108,6 @@ def saveThumbnails(v, output):
 def worker_callback(s):
     global csv_report, first, nfiledone
     if nfiledone  == 0:
-        
         csv_report = open(args.outdir + os.sep + "results" + ".tsv" , overwrite_flag, buffering=1)
         first = True
 
@@ -45,10 +120,47 @@ def worker_callback(s):
     csv_report.flush()
     nfiledone += 1
     print('The results is updated.')
+    
 
+
+def tsv_to_dataframe(tsvfileaddress):
+    return pd.read_csv(tsvfileaddress, sep='\t', skiprows=2, header=0)
+
+
+def data_whitening(dframe):
+    dframe = dframe.fillna('N/A')
+    df = dframe.copy()
+    df = df.drop(df.columns[0], axis=1)
+    df = df.drop(df.columns[0], axis=1)
+    df = df.drop(df.columns[0], axis=1)
+    df = df.drop(df.columns[0], axis=1)
+    ds = whiten(df)
+    return ds
+
+def tsne_umap(dataframe, per):
+    ds = data_whitening(dataframe)
+    ds_umap = ds.copy()
+    tsne = TSNE(n_components=2, random_state=0, perplexity = per)
+    tsne_obj = tsne.fit_transform(ds)
+    dataframe['x'] = tsne_obj[:,0].astype(float)
+    dataframe['y'] = tsne_obj[:,1].astype(float)
+    reducer = umap.UMAP()
+    embedding = reducer.fit_transform(ds_umap)
+    dataframe['u'] = embedding[:,0]
+    dataframe['v'] = embedding[:,1]
+
+
+def cleanup(final_address, per):
+    df = tsv_to_dataframe(final_address)
+    tsne_umap(df, per)
+    hf = pd.read_csv(final_address, sep='\t',  nrows=1)
+    hf.to_csv(final_address, index = None, header=True, sep = '\t', mode = 'w')
+    df.to_csv(final_address, index = None, header=True, sep = '\t', mode = 'a')
+    
 
 if __name__ == '__main__':
     start_time = time.time()
+#    get_ipython().magic('reset -sf')
     headers.append(f"start_time:\t{datetime.datetime.now()}")
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('inputdir',
@@ -64,16 +176,39 @@ if __name__ == '__main__':
     root = args.inputdir[0]
     fname_outdir = args.outdir
     
-    patients = patient_name(root)
-    
-    for i in patients:
-        v = volume(i)
-        saveThumbnails(v, fname_outdir)
-        s = QCF.BaseVolume(fname_outdir, v)
-        worker_callback(s)
-    print("CT_QC program took", format((time.time() - start_time)/60, '.2f'), "minutes to run.")
-            
-        
+    patients, names, dicom_spil, nondicom_spli, nondicom_names = patient_name(root)
 
+    if len(dicom_spil) > 0 and len(nondicom_spli) > 0:
+        dicom_flag = True
+        nondicom_flag = True
+    if len(dicom_spil) > 0 and len(nondicom_spli) == 0:
+        dicom_flag = True
+        nondicom_flag = False
+    if len(dicom_spil) == 0 and len(nondicom_spli) > 0:
+        dicom_flag = False
+        nondicom_flag = True
+    if len(dicom_spil) == 0 and len(nondicom_spli) == 0:
+        print('The input folder is empty!')
     
+    for i in range(len(names)):
+        if dicom_flag:
+            for j in range(len(dicom_spil)):
+                v = volume_dicom(dicom_spil[j])
+                saveThumbnails_dicom(v,fname_outdir)
+                s = QCF.BaseVolume_dicom(fname_outdir, v)
+                worker_callback(s)
+            dicom_flag = False
+            
+        if nondicom_flag:
+            for l,k in enumerate(nondicom_spli):
+                v = volume_notdicom(k, nondicom_names[l])
+                saveThumbnails_nondicom(v,fname_outdir)
+                s = QCF.BaseVolume_nondicom(fname_outdir, v)
+                worker_callback(s)
+            nondicom_flag = False
+
+    address = fname_outdir + os.sep + "results" + ".tsv" 
+    cleanup(address, 30)
     
+    print("Done!")
+    print("MRQy program took", format((time.time() - start_time)/60, '.2f'), "minutes to run.")
