@@ -5,7 +5,7 @@ MRQy tool is a new quality assessment and evaluation tool for magnetic resonance
 ## Description
 
 
-This tool takes MRI datasets in the file formats (_.dcm_, _.nii_, _.ima_ or _.mha_) as the input. Two Python scripts (_QC.py_ and _QCF.py_) are used to generate several tag and noise/information measurements for quality assessment. These scripts save the calculated measures in a  _.tsv_ file as well generate _.png_ thumbnails for all images in a subject volume. These are then fed to the bunch of _.js_ scripts to create the user interface (_index.html_) output. The schematic framework of the tool is as follows:
+This tool takes MRI datasets in the file formats (_.dcm_, _.nii_, _.nii.gz_ or _.mha_) as the input. Two Python scripts (_QC.py_ and _QCF.py_) are used to generate several tag and noise/information measurements for quality assessment. These scripts save the calculated measures in a  _.tsv_ file as well generate _.png_ thumbnails for all images in a subject volume. These are then fed to the bunch of _.js_ scripts to create the user interface (_index.html_) output. The schematic framework of the tool is as follows:
 
 
 
@@ -18,12 +18,13 @@ The current version of the tool has been tested on the Python vresion 3.7.4. The
 
 ### General packages:
 
-1. os, 2. argparse, 3. numpy, 4. datetime, 5. time, 6. matplotlib, 7. Scipy, and 8. skimage
+1. os, 2. argparse, 3. numpy, 4. datetime, 5. time, 6. matplotlib, 7. scipy, 8. itertools, 9. pandas, 10. warnings, and 11. skimage
 
 ### Specific packages:
 
 Based on your input files format you may have to install one or more of the following packages: 
-1. medpy (for _.mha_ files), 2. pydicom (for _.dcm_ files), and 3. nibabel (for _.nii_ files)
+1. medpy (for _.mha_, _.nii_, and _.nii.gz_ files) and 2. pydicom (for _.dcm_ files)
+The t-SNE and UMAP plots work with the sklearn and umap (umap-learn) packeges respectively. 
 
 
 ## Running
@@ -64,11 +65,15 @@ The measures of the ImageQC tool are listed in the following table
 
 | Measure |  Description  |  Formula |
 |---------|------------| ---------------------|
+|   __Manufacturer__ | Manufacturer| _ |
+|   __MFS__ | Magnetic Field Strength| _ |
 |   __VR_x__, __V_y__, __VR_z__ | voxel resolution in x, y, z| _ |
 |   __Rows__, __Columns__  | Rows, Columns| _ |
+|   __TR__, __TE__  | Repetition Time, Echo Time| _ |
 |   __Number__  | number of slice| _ |
 |   __Mean__  |  mean of foreground| _ |
 |   __Range__  | range of foreground| _ |
+|   __Variance__  | range of foreground| _ |
 |   __CV__  | foreground coefficient of variation| ![](http://www.sciweavers.org/download/Tex2Img_1570566359.jpg) |
 |   __CPP__  | contrast per pixel of foreground| mean(conv2(foreground image, filter)), filter: 3 * 3  with 8 in center and -1 others|
 |   __PSNR__  | peak signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566645.jpg), MSE: mean squared error between foreground and median filter 5 * 5  over the foreground   |
@@ -76,7 +81,6 @@ The measures of the ImageQC tool are listed in the following table
 |   __SNR2__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566845.jpg), patch: 5 * 5  square patch with center the maximum intensity value of the image    |
 |   __SNR3__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566876.jpg)  |
 |   __SNR4__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566995.jpg)    |
-|   __SNR5__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570567015.jpg)   |
 |   __CNR__  | contrast to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570567041.jpg)| 
 |   __CVP__  | patch coefficient of variation| ![](http://www.sciweavers.org/download/Tex2Img_1570567065.jpg)|
 |   __EFC__  | entropy focus criterion| Shannon entropy of the foreground image voxel intensites|
