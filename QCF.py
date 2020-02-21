@@ -1,3 +1,9 @@
+"""
+Created on Sat Feb  8 17:43:12 2020
+
+@author: Amir Reza Sadri
+"""
+
 import os
 import numpy as np
 from scipy.signal import convolve2d as conv2
@@ -6,13 +12,56 @@ from skimage.morphology import convex_hull_image
 from skimage import exposure as ex
 from skimage.filters import median
 from skimage.morphology import square
+from skimage.util import pad
 import warnings
 
 warnings.filterwarnings("ignore")
 
-sample_size = 1 # number of slice's samples for measure computation per patient
+sample_size = 1
 
-class BaseVolume(dict):
+class BaseVolume_dicom(dict):
+
+    def __init__(self, fname_outdir, v):
+        dict.__init__(self)
+
+        self["warnings"] = [] 
+        self["output"] = []
+        self.addToPrintList("Patient", v[1]['ID'], v)
+        self["outdir"] = fname_outdir
+        self.addToPrintList("Name of Images", os.listdir(fname_outdir + os.sep + v[1]['ID']), v)
+        self.addToPrintList("Manufacturer", v[1]['Manufacturer'], v)
+        self.addToPrintList("MFS", v[1]['MFS'], v)
+        self.addToPrintList("VR_x", v[1]['VR_x'], v)
+        self.addToPrintList("VR_y", v[1]['VR_y'], v)
+        self.addToPrintList("VR_z", v[1]['VR_z'], v)
+        self.addToPrintList("Rows", v[1]['Rows'], v)
+        self.addToPrintList("Columns", v[1]['Columns'], v)
+        self.addToPrintList("TR", v[1]['TR'], v)
+        self.addToPrintList("TE", v[1]['TE'], v)
+        self["os_handle"] = v[0]
+        self.addToPrintList("Number", v[1]['Number'], v)
+        self.addToPrintList("Mean", vol(v, sample_size, "Mean"), v)
+        self.addToPrintList("Range", vol(v, sample_size, "Range"), v)
+        self.addToPrintList("Variance", vol(v, sample_size, "Variance"), v)
+        self.addToPrintList("%CV", vol(v, sample_size, "%CV"), v)
+        self.addToPrintList("CPP", vol(v, sample_size, "CPP"), v)
+        self.addToPrintList("PSNR", vol(v, sample_size, "PSNR"), v)
+        self.addToPrintList("SNR1", vol(v, sample_size, "SNR1"), v)
+        self.addToPrintList("SNR2", vol(v, sample_size, "SNR2"), v)
+        self.addToPrintList("SNR3", vol(v, sample_size, "SNR3"), v)
+        self.addToPrintList("SNR4", vol(v, sample_size, "SNR4"), v)
+        self.addToPrintList("CNR", vol(v, sample_size, "CNR"), v)
+        self.addToPrintList("CVP", vol(v, sample_size, "CVP"), v)
+        self.addToPrintList("EFC", vol(v, sample_size, "EFC"), v)
+        self.addToPrintList("FBER", vol(v, sample_size, "FBER"), v)
+        
+    def addToPrintList(self, name, val, v):
+        self[name] = val
+        self["output"].append(name)
+        print('The %s of the patient with the name of <%s> is %s' % (name, v[1]['ID'], val))
+
+
+class BaseVolume_nondicom(dict):
 
     def __init__(self, fname_outdir, v):
         dict.__init__(self)
@@ -39,7 +88,6 @@ class BaseVolume(dict):
         self.addToPrintList("SNR2", vol(v, sample_size, "SNR2"), v)
         self.addToPrintList("SNR3", vol(v, sample_size, "SNR3"), v)
         self.addToPrintList("SNR4", vol(v, sample_size, "SNR4"), v)
-        self.addToPrintList("SNR5", vol(v, sample_size, "SNR5"), v)
         self.addToPrintList("CNR", vol(v, sample_size, "CNR"), v)
         self.addToPrintList("CVP", vol(v, sample_size, "CVP"), v)
         self.addToPrintList("EFC", vol(v, sample_size, "EFC"), v)
@@ -55,14 +103,13 @@ def vol(v, sample_size, i):
             'Mean': mean,
             'Range': rang,
             'Variance': variance, 
-            '%CV': coefficient_variation,
+            '%CV': percent_coefficient_variation,
             'CPP': contrast_per_pixle,
             'PSNR': fpsnr,
             'SNR1': snr1,
             'SNR2': snr2,
             'SNR3': snr3,
             'SNR4': snr4,
-            'SNR5': snr5,
             'CNR': cnr,
             'CVP': cvp,
             'EFC': efc,
@@ -72,130 +119,112 @@ def vol(v, sample_size, i):
     M = []
     for i in range(1, len(v[0]), sample_size):
         I = v[0][i]
-#        I = I - np.min(I)
-        F, B = foreground(I)
-        M.append(func(I,F,B))
+#        I = I - np.min(I)  # for CT 
+        F, B, c, f, b = foreground(I)
+        if np.std(F) == 0:  # whole zero slice, no measure computing
+            continue
+        measure = func(F, B, c, f, b)
+        if np.isnan(measure) or np.isinf(measure):
+            continue
+#            measure = 0
+        # To do (add something)
+        M.append(measure)
     return np.mean(M)
        
-def he(img):
-    return ex.equalize_hist(img[:,:])*255
 
 def foreground(img):
     try:
-        hist_eq = he(img)
+        h = ex.equalize_hist(img[:,:])*255
+        oi = np.zeros_like(img, dtype=np.uint16)
+        oi[(img > threshold_otsu(img)) == True] = 1
+        oh = np.zeros_like(img, dtype=np.uint16)
+        oh[(h > threshold_otsu(h)) == True] = 1
+        nm = img.shape[0] * img.shape[1]
+        w1 = np.sum(oi)/(nm)
+        w2 = np.sum(oh)/(nm)
         ots = np.zeros_like(img, dtype=np.uint16)
-        ots[(hist_eq > threshold_otsu(hist_eq)) == True] = 1
-        ch = convex_hull_image(ots)
-        ch = np.multiply(ch, 1)
+        new =( w1 * img) + (w2 * h)
+        ots[(new > threshold_otsu(new)) == True] = 1
+        conv_hull = convex_hull_image(ots)
+        ch = np.multiply(conv_hull, 1)
         fore_image = ch * img
         back_image = (1 - ch) * img
     except Exception: 
         fore_image = img.copy()
-        back_image = 1 - img
-    return fore_image, back_image
+        back_image = np.zeros_like(img, dtype=np.uint16)
+        conv_hull = np.zeros_like(img, dtype=np.uint16)
+    return fore_image, back_image, conv_hull, img[conv_hull], img[conv_hull==False]
+
+def mean(F, B, c, f, b):
+    return np.nanmean(f)
+
+def rang(F, B, c, f, b):
+    return np.ptp(f)
+
+def variance(F, B, c, f, b):
+    return np.nanvar(f)
+
+def percent_coefficient_variation(F, B, c, f, b):
+    return (np.nanstd(f)/np.nanmean(f))*100
+
+def contrast_per_pixle(F, B, c, f, b):
+    filt = np.array([[ -1/8, -1/8, -1/8],[-1/8, 1, -1/8],[ -1/8, -1/8,  -1/8]])
+    I_hat = conv2(F, filt, mode='same')
+    return np.nanmean(I_hat)
 
 def psnr(img1, img2):
     mse = np.square(np.subtract(img1, img2)).mean()
-    if mse == 0:
-        return 100
-    PIXEL_MAX = np.max(img1)
-    return 20 * np.log10(PIXEL_MAX / np.sqrt(mse))
+    return 20 * np.log10(np.nanmax(img1) / np.sqrt(mse))
 
-def mean(img, foreground, background):
-    return np.mean(foreground)
+def fpsnr(F, B, c, f, b):
+    I_hat = median(F/np.max(F), square(5))
+    return psnr(F, I_hat)
 
-def rang(img, foreground, background):
-    return np.ptp(foreground)
-
-def variance(img, foreground, background):
-    return np.var(foreground)
-
-def coefficient_variation(img, foreground, background):
-    m = np.mean(foreground)
-    s = np.std(foreground)
-    if m== 0:
-        m = 1
-    return (s/m)*100
-
-def contrast_per_pixle(img, foreground, background):
-    filt = np.array([[ -1/8, -1/8, -1/8],[-1/8, 1, -1/8],[ -1/8, -1/8,  -1/8]])
-    I_hat = conv2(foreground, filt, mode='same')
-    return np.mean(I_hat)
-
-def fpsnr(img, foreground, background):
-    I_hat = median(foreground/np.max(foreground), square(5))
-    return psnr(foreground, I_hat)
+def snr1(F, B, c, f, b):
+    return np.nanstd(f) / np.nanstd(b)
 
 def patch(img, patch_size):
     h = int(np.floor(patch_size / 2))
-    [n,m] = np.shape(img)
-    G = np.ones((2 * h + n, 2 * h + m))
-    G[h: n + h, h: m + h] = img
+    U = pad(img, pad_width=h, mode='constant')
     [a,b]  = np.where(img == np.max(img))
     a = a[0]
     b = b[0]
-    return G[a:a+2*h+1,b:b+2*h+1]
+    return U[a:a+2*h+1,b:b+2*h+1]
 
-def snr1(img, foreground, background):
-    std_background = np.std(background)
-    if std_background == 0:
-        std_background = 0.01 
-    return np.mean(foreground) / std_background
+def snr2(F, B, c, f, b):
+    fore_patch = patch(F, 5)
+    return np.nanmean(fore_patch) / np.nanstd(b)
 
-def snr2(img, foreground, background):
-    fore_patch = patch(foreground, 5)
-    std_background = np.std(background)
-    if std_background == 0:
-        std_background = 0.01 
-    return np.mean(fore_patch) / std_background
+def snr3(F, B, c, f, b):
+    fore_patch = patch(F, 5)
+    return np.nanmean(fore_patch)/np.nanstd(fore_patch - np.nanmean(fore_patch))
 
-def snr3(img, foreground, background):
-    fore_patch = patch(foreground, 5)
-    return np.mean(fore_patch) / np.std(fore_patch - np.mean(fore_patch))
+def snr4(F, B, c, f, b):
+    fore_patch = patch(F, 5)
+    back_patch = patch(B, 5)
+    return np.nanmean(fore_patch) / np.nanstd(back_patch)
 
-def snr4(img, foreground, background):
-    fore_patch = patch(foreground, 5)
-    back_patch = patch(background, 5)
-    std_back_patch = np.std(back_patch)
-    if std_back_patch == 0:
-        std_back_patch = 0.01 
-    return np.sum(fore_patch - back_patch) / std_back_patch
+def cnr(F, B, c, f, b):
+    fore_patch = patch(F, 5)
+    back_patch = patch(B, 5)
+    return np.nanmean(fore_patch-back_patch) / np.nanstd(back_patch)
 
-def snr5(img, foreground, background):
-    fore_patch = patch(foreground, 5)
-    return np.mean(fore_patch) /np.std(fore_patch)
+def cvp(F, B, c, f, b):
+    fore_patch = patch(F, 5)
+    return np.nanstd(fore_patch) / np.nanmean(fore_patch)
 
-def cnr(img, foreground, background):
-    fore_patch = patch(foreground, 5)
-    back_patch = patch(background, 5)
-    std_back_patch = np.std(back_patch)
-    if std_back_patch == 0:
-        std_back_patch = 0.01
-    return np.mean(fore_patch - back_patch) / std_back_patch
-
-def cvp(img, foreground, background):
-    fore_patch = patch(foreground, 5)
-    return np.std(fore_patch) / np.mean(fore_patch)
-
-def efc(img, foreground, background):
-    framemask = np.zeros_like(img, dtype=np.uint8)
-    n_vox = np.sum(1 - framemask)
+def efc(F, B, c, f, b):
+    n_vox = F.shape[0] * F.shape[1]
     efc_max = 1.0 * n_vox * (1.0 / np.sqrt(n_vox)) * \
         np.log(1.0 / np.sqrt(n_vox))
-    cc = (img[framemask == 0]**2).sum()
+    cc = (F**2).sum()
     b_max = np.sqrt(abs(cc))
-    if b_max == 0:
-        b_max = 1
     return float((1.0 / abs(efc_max)) * np.sum(
-        (img[framemask == 0] / b_max) * np.log(
-        (img[framemask == 0] + 1e16) / b_max)))
+        (F / b_max) * np.log((F + 1e16) / b_max)))
 
-def fber(img, foreground, background):
-    fg_mu = np.median(np.abs(img[foreground > 0]) ** 2)
-    
-    airmask = np.ones_like(foreground, dtype=np.uint8)
-    airmask[foreground > 0] = 0
-    bg_mu = np.median(np.abs(img[airmask == 1]) ** 2)
-    if abs(bg_mu) < 1.0e-3 or np.isnan(bg_mu): 
+def fber(F, B, c, f, b):
+    fg_mu = np.nanmedian(np.abs(f) ** 2)
+    bg_mu = np.nanmedian(np.abs(b) ** 2)
+    if bg_mu < 1.0e-3:
         return 0
-    return float(np.abs(fg_mu / bg_mu))
+    return float(fg_mu / bg_mu)
