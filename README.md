@@ -64,31 +64,7 @@ Every action will be print in the output console. The thumbnail images in the fo
 
 The measures of the ImageQC tool are listed in the following table
 
-![ui3](https://user-images.githubusercontent.com/50635618/75051496-ff69a880-549b-11ea-8d7d-7a5a889aa81f.PNG)
-![ui4](https://user-images.githubusercontent.com/50635618/75052186-2d9bb800-549d-11ea-9ad9-97525b1412d9.PNG)
-
-| Measure |  Description  |  Formula |
-|---------|------------| ---------------------|
-|   __Manufacturer__ | Manufacturer| _ |
-|   __MFS__ | Magnetic Field Strength| _ |
-|   __VR_x__, __V_y__, __VR_z__ | voxel resolution in x, y, z| _ |
-|   __Rows__, __Columns__  | Rows, Columns| _ |
-|   __TR__, __TE__  | Repetition Time, Echo Time| _ |
-|   __Number__  | number of slice| _ |
-|   __Mean__  |  mean of foreground| _ |
-|   __Range__  | range of foreground| _ |
-|   __Variance__  | range of foreground| _ |
-|   __CV__  | foreground coefficient of variation| ![](http://www.sciweavers.org/download/Tex2Img_1570566359.jpg) |
-|   __CPP__  | contrast per pixel of foreground| mean(conv2(foreground image, filter)), filter: 3 * 3  with 8 in center and -1 others|
-|   __PSNR__  | peak signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566645.jpg), MSE: mean squared error between foreground and median filter 5 * 5  over the foreground   |
-|   __SNR1__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566763.jpg)|
-|   __SNR2__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566845.jpg), patch: 5 * 5  square patch with center the maximum intensity value of the image    |
-|   __SNR3__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566876.jpg)  |
-|   __SNR4__  | signal to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570566995.jpg)    |
-|   __CNR__  | contrast to noise ratio| ![](http://www.sciweavers.org/download/Tex2Img_1570567041.jpg)| 
-|   __CVP__  | patch coefficient of variation| ![](http://www.sciweavers.org/download/Tex2Img_1570567065.jpg)|
-|   __EFC__  | entropy focus criterion| Shannon entropy of the foreground image voxel intensites|
-|   __FBER__  | foreground-background energy ratio $\ \ $| ![](http://www.sciweavers.org/download/Tex2Img_1570567104.jpg), MED: median|
+![ui5](https://user-images.githubusercontent.com/50635618/75052362-7c495200-549d-11ea-8b7f-e52ef4fe5570.PNG)
 
 Reference for the last two measures is  https://mriqc.readthedocs.io/en/stable/.
 
