@@ -1,7 +1,4 @@
 # MRQy
-<div class="text-purple">
-  This text is purple, <a href="#" class="text-inherit">including the link</a>
-</div>
 
 MRQy tool is a new quality assessment and evaluation tool for magnetic resonance imaging (MRI) data.
 
