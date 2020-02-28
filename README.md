@@ -1,4 +1,4 @@
-![Picture1](https://user-images.githubusercontent.com/50635618/75580965-a4edc080-5a36-11ea-9191-826974903253.png)
+![](https://user-images.githubusercontent.com/50635618/75580965-a4edc080-5a36-11ea-9191-826974903253.png)
 
 MRQy tool is a new quality assessment and evaluation tool for magnetic resonance imaging (MRI) data.
 
