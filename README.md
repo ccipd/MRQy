@@ -14,19 +14,9 @@ This tool takes MRI datasets in the file formats (_.dcm_, _.nii_, _.nii.gz_ or _
 
 ## Prerequisites
 
-The current version of the tool has been tested on the Python vresion 3.7.4. The required Python packages are listed in the following
+The current version of the tool has been tested on the Python vresion 3.7.4. The required Python packages are listed in the following figure.
 
-### General packages:
-
-1. os, 2. argparse, 3. numpy, 4. datetime, 5. time, 6. matplotlib, 7. scipy, 8. itertools, 9. pandas, 10. warnings, and 11. skimage.
-
-### Specific packages:
-
-Based on your input files format you may have to install one or more of the following packages: 
-1. medpy (for _.mha_, _.nii_, and _.nii.gz_ files) and 2. pydicom (for _.dcm_ files).
-
-In addition, the t-SNE and UMAP plots work with the sklearn and umap (umap-learn) packeges respectively. 
-
+![Picture2](https://user-images.githubusercontent.com/50635618/75573580-23446580-5a2b-11ea-8adc-3e9bd5e07ee0.png)
 
 ## Running
 
