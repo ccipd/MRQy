@@ -7,7 +7,7 @@ This tool takes MRI datasets in the file formats (_.dcm_, _.nii_, _.nii.gz_ or _
 
 
 
-![Picture7](https://user-images.githubusercontent.com/50635618/75577040-1e81b080-5a2f-11ea-8768-d70525ec8c85.png)
+![Picture2](https://user-images.githubusercontent.com/50635618/76351015-1ead6600-62e3-11ea-8549-3dd64831cb88.png)
 
 
 ## Prerequisites
