@@ -7,7 +7,8 @@ This tool takes MRI datasets in the file formats (_.dcm_, _.nii_, _.nii.gz_ or _
 
 
 
-![Picture6](https://user-images.githubusercontent.com/50635618/76580241-9c20d400-64a5-11ea-859a-4fe5a25e9915.png)
+![Picture8](https://user-images.githubusercontent.com/50635618/76580524-a2638000-64a6-11ea-9535-d590585c6af1.png)
+
 
 
 
@@ -15,7 +16,7 @@ This tool takes MRI datasets in the file formats (_.dcm_, _.nii_, _.nii.gz_ or _
 
 The current version of the tool has been tested on the Python vresion 3.7.4. The required Python packages are listed in the following figure.
 
-![Picture4](https://user-images.githubusercontent.com/50635618/76577210-f5cfd100-649a-11ea-9f11-4c8255ed793e.png)
+![Picture7](https://user-images.githubusercontent.com/50635618/76580525-a2638000-64a6-11ea-8a37-38e95c4693c3.png)
 
 
 ## Running
