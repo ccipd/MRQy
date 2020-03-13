@@ -55,6 +55,8 @@ Every action will be print in the output console. The thumbnail images in the fo
 
 The measures of the ImageQC tool are listed in the following table
 
+![Picture1](https://user-images.githubusercontent.com/50635618/76596312-31d35800-64d4-11ea-809c-10f30dede3ae.png)
+
 ![ui5](https://user-images.githubusercontent.com/50635618/75052362-7c495200-549d-11ea-8b7f-e52ef4fe5570.PNG)
 
 Reference for the last two measures is  https://mriqc.readthedocs.io/en/stable/.
