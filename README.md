@@ -53,11 +53,10 @@ Every action will be print in the output console. The thumbnail images in the fo
 
 ### Measurements
 
-The measures of the MRQy tool are listed in the following table
+The measures of the MRQy tool are listed in the following table.
 
-![Picture2](https://user-images.githubusercontent.com/50635618/76603645-b37eb200-64e3-11ea-959a-6e91dd560ec1.png)
+![Picture3](https://user-images.githubusercontent.com/50635618/76604467-23da0300-64e5-11ea-8088-8539f8a8d002.png)
 
-Reference for the last two measures is  https://mriqc.readthedocs.io/en/stable/.
 
 ### User Interface
 
