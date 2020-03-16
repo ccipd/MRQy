@@ -58,7 +58,7 @@ The thumbnail images in the format of _.png_ will be saved on "...\UserInterface
 
 The measures of the MRQy tool are listed in the following table.
 
-![Picture3](https://user-images.githubusercontent.com/50635618/76604467-23da0300-64e5-11ea-8088-8539f8a8d002.png)
+![Picture1](https://user-images.githubusercontent.com/50635618/76733243-cb9a3f80-6736-11ea-8100-a1bdb6f60d3f.png)
 
 
 ### User Interface
