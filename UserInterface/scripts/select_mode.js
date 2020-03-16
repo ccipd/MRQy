@@ -19,6 +19,8 @@ function exit_select_mode () {
 
 	exit_select_image_view();
 	exit_select_chart_view();
+	exit_select_tsne_view();
+	exit_select_umap_view();
 	TABLE.rows('.selected').deselect();
 	TABLE.rows('.selected').deselect();
 	TABLEM.rows('.selected').deselect();
