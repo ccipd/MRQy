@@ -65,8 +65,11 @@ The measures of the MRQy tool are listed in the following table.
 
 The following figures show the user interface of the tool (index.html). 
 
-![ui1](https://user-images.githubusercontent.com/50635618/75050129-633ea200-5499-11ea-81b6-4140ac6458a3.PNG)
-![ui2](https://user-images.githubusercontent.com/50635618/75050201-8a956f00-5499-11ea-8aa7-19babc98cb70.PNG)
+![tbp](https://user-images.githubusercontent.com/50635618/76736219-cc35d480-673c-11ea-8831-89ec53dac820.PNG)
+![pcp](https://user-images.githubusercontent.com/50635618/76736220-ccce6b00-673c-11ea-88c7-726703a3c3df.PNG)
+![bcp](https://user-images.githubusercontent.com/50635618/76736222-ccce6b00-673c-11ea-80cb-a46ae6f2fd43.PNG)
+![imp](https://user-images.githubusercontent.com/50635618/76736223-ccce6b00-673c-11ea-99d0-d2c0b0327b30.PNG)
+![emp](https://user-images.githubusercontent.com/50635618/76736217-cb9d3e00-673c-11ea-8d0e-24edf3eaa4cf.PNG)
 
 
 ## Feedback and usage
