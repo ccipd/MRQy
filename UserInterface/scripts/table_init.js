@@ -22,26 +22,11 @@ function initialize_data_table (dataset) {
 
 	$table.find("tbody").on("click", 'td', function () {
 
-
-
-		//////////////////////////////////////////////////////// my code 
-
-		// for (var j = 0; j < ORIGINAL_DATASET2.length; j ++) {
-		// 	if (ORIGINAL_DATASET2[j]["Patient"] == TABLE.rows(this).data()[0][0]) {
-		// 		console.log("Amir + %s", j)
-		// 		DATA_TABLE_CONFIG_meas.select = false;
-		// 	}
-		// }
-		////////////////////////////////////////////////////////////////////
-
-
-		// console.log(TABLE.rows(this).data()[0][0]);
-		// console.log(ORIGINAL_DATASET2[1]["Patient"]);
-
 		if ($(TABLE.column($(this).index() + ":visIdx").header()).text().trim() != "comments") {
 			var case_name = $(this).parent().find("td:first-child").text();
 			// console.log(case_name)
 			enter_select_mode(case_name, true);
+			// $(this).css("border","2px solid red");
 
 			// if (case_name != CURRENT_SELECTED) {
 			// 	enter_select_mode(case_name, true);
@@ -51,6 +36,7 @@ function initialize_data_table (dataset) {
 		} else {
 			$("tr.selected").removeClass("selected");
 		}
+
 	});
 
 	$(".dataTables_scrollHeadInner > table > thead > tr > th").on("click", function () {
@@ -136,28 +122,11 @@ function generate_config (dataset) {
 			action: colvis_action
 		});
 
-
-		// $(document).on('mouseover', 'th,td', function () {
-  //       var offset = $(this).offset();
-  //       var html = '<div class="popup">' + $(this).text() + '</div>';
-  //       $('.popup').remove();
-  //       $(html).insertBefore('table');
-  //       $('.popup').css({ 'top': offset.top, 'right': offset.right }).fadeIn();
-  // 		$('table').on("mouseover", function (header) {
-		// // data_sorting($(this).text(), (TABLE.order()[0][1] == 'desc'));
-		// var offset = $(this).offset();
-		// var html = '<div class="popup">' + $(this).text() + '</div>';
-		// $('.popup').remove();
-  //       // $(html).insertBefore('table');
-  //       $('.popup').css({ 'top': offset.top, 'right': offset.right }).fadeIn();
-    // });
-
-
 	});
 
 	var colvis_config = {
 		extend: 'collection',
-		text: 'Cols',
+		text: 'Tags',
 		buttons: colvis_buttons_config,
 		fade: 500
 	};
