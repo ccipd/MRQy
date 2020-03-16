@@ -86,7 +86,7 @@ function enter_select_image_view (dir) {
 			var myArray = image_names_new;
 			const image_names_new2 = myArray.reverse(myArray.sort(collator.compare));
 			// console.log(image_names_new2);
-			for (var i = 0; i < ORIGINAL_DATASET1[j]["Number"]; i++) {
+			for (var i = 0; i < ORIGINAL_DATASET1[j]["NUM"]; i++) {
 				// console.log(i, ORIGINAL_DATASET1[j]["Patient"])
 				$div.append("<img id='exibit-img' src='" + generate_img_src(dir, CURRENT_IMAGE_TYPE,image_names_new2[i])+ "'/>");
 			}
