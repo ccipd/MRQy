@@ -1,5 +1,4 @@
 
-
 function initialize_chart_view (dataset, vis_type="bar_chart") {
 
 	show_view("chart");
