@@ -80,7 +80,8 @@ function init_tsne (dataset) {
       title:'<b>t-SNE Plot</b>',
       titlefont: {
         // family: 'Arial, sans-serif',
-        family: 'Titillium',
+        // family: 'Titillium',
+        family: 'Titillium Web', 
         size: 18,
         color: 'black'
       },
@@ -145,7 +146,5 @@ function exit_select_tsne_view () {
     Plotly.restyle('tsne-svg-container', SS.fourth);
 
 }
-
-
 
 
