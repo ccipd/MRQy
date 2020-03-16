@@ -4,6 +4,7 @@
 
 
 This tool takes MRI datasets in the file formats (_.dcm_, _.nii_, _.nii.gz_ or _.mha_) as the input. 
+
 Two Python scripts (_QC.py_ and _QCF.py_) are used to generate several tags and noise/information measurements for quality assessment. These scripts save the calculated measures in a  _.tsv_ file as well as generate _.png_ thumbnails for all images in a subject volume. These are then fed to the bunch of _.js_ scripts to create the user interface (_index.html_) output. The schematic framework of the tool is as follows.
 
 
@@ -43,10 +44,10 @@ optional arguments:
   -h, --help          show this help message and exit
   
 ```
-Standard usage is to run ``` QC.py –o output_folder_name “input directory” ``` i.e. 
+Standard usage is to run ``` QC.py output_folder_name “input directory” ``` i.e. 
 
 ```
-python QC.py -o output_folder_name "E:\Data\Rectal\RectalCancer_Multisite\input_data_folder"
+python QC.py output_folder_name "E:\Data\Rectal\RectalCancer_Multisite\input_data_folder"
 
 ```
 There is no need to make a subfolder in the Data directory, just specify its name in the command like above code line.
