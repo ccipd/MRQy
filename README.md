@@ -67,7 +67,7 @@ The following figures show the user interface of the tool (index.html).
 
 
 ![FC1](https://user-images.githubusercontent.com/50635618/76790203-c7047400-6794-11ea-81ea-bc93ab9130ff.PNG)
-![FC2](https://user-images.githubusercontent.com/50635618/76790205-c79d0a80-6794-11ea-917a-fd8bde31e6c0.PNG)
+![FC2](https://user-images.githubusercontent.com/50635618/76790408-295d7480-6795-11ea-8f67-f5a5badd38f6.PNG)
 ![FC3](https://user-images.githubusercontent.com/50635618/76790200-c66bdd80-6794-11ea-9954-8abe29112328.PNG)
 
 
