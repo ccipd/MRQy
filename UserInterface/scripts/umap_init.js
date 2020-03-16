@@ -138,5 +138,3 @@ function exit_select_umap_view () {
 
 }
 
-
-
