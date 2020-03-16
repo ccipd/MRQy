@@ -33,11 +33,10 @@ The output should be
 usage: QC.py [-h] output_folder_name [inputdir [inputdir ...]]
 
 positional arguments:
-  output_folder_name  the name of a subfolder on the Data directory of the
-                      UserInterface folder.
+  output_folder_name  the subfolder name on the
+                      '...\UserInterface\Data\output_folder_name' directory.
   inputdir            input foldername consists of *.mha (*.nii or *.dcm)
-                      files. For example:
-                      'E:\Data\Rectal\RectalCancer_Multisite\input_data_folder'
+                      files. For example: 'E:\Data\Rectal\input_data_folder'
 
 optional arguments:
   -h, --help          show this help message and exit
