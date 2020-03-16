@@ -37,7 +37,7 @@ positional arguments:
                       UserInterface folder.
   inputdir            input foldername consists of *.mha (*.nii or *.dcm)
                       files. For example:
-                      'E:\Data\Rectal\RectalCancer_Multisite\UH'
+                      'E:\Data\Rectal\RectalCancer_Multisite\input_data_folder'
 
 optional arguments:
   -h, --help          show this help message and exit
