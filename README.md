@@ -48,8 +48,9 @@ Standard usage is to run ``` QC.py output_folder_name “input directory” ``` 
 python QC.py output_folder_name "E:\Data\Rectal\RectalCancer_Multisite\input_data_folder"
 
 ```
-There is no need to make a subfolder in the Data directory, just specify its name in the command like above code line.
-Every action will be print in the output console. The thumbnail images in the format of _.png_ will be saved on "...\UserInterface\Data\output_folder_name" with its original filename as its subfolder's name. Afterward, double click "index.html" (on e.g. "D:\Downloads\MRQy-master\UserInterface") to open front end user interface, select the respective _results.tsv_ file from the e.g. "D:\Downloads\MRQy-master\UserInterface\Data\output_folder_name" directory.
+There is no need to make a subfolder in the Data directory, just specify its name in the command like above code line.\
+Every action will be printed in the output console. \
+The thumbnail images in the format of _.png_ will be saved on "...\UserInterface\Data\output_folder_name" with its original filename as its subfolder's name. Afterward, double click "index.html" (on e.g. "D:\Downloads\MRQy-master\UserInterface") to open front end user interface, select the respective _results.tsv_ file from the e.g. "D:\Downloads\MRQy-master\UserInterface\Data\output_folder_name" directory.
 
 ## Basic Information 
 
