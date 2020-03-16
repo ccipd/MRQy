@@ -2,7 +2,6 @@
  ****** RUN-TIME VARIABLES [DO NOT EDIT] ******
  ****** initialized before document ready *****
  **********************************************/
-
 /******************** DATASET *****************/
 var ORIGINAL_DATASET = [],
 	ORIGINAL_DATASET2 = [],
