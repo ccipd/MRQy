@@ -15,9 +15,28 @@
 	/*--case-color: #00304e;*/
 }
 
+/*@font-face {
+  font-family: "Titillium";
+  src: url("https://fonts.google.com/specimen/Titillium+Web?selection.family=Titillium+Web");
+  }
+*/
+
+
+/*<style>
+@import url('https://fonts.googleapis.com/css?family=Titillium+Web&display=swap');
+</style>
+*/
+
+/*html, body {
+  line-height: 1;  same as bootstrap.css 
+  font-family: 'Titillium Web' !important;
+   }*/
+
+
+
 html, body {
-  line-height: 1; /* same as bootstrap.css */
-   font-family: 'Titillium' !important;
+  line-height: 1;   
+   font-family: 'Titillium Web', sans-serif;
    /*font-size: 18px;*/
 }
 
@@ -76,7 +95,7 @@ th {
 
 #reset-button:hover{
      background: #c6d4e3;
-}*/
+}
 
 .view-enabled {
 	display: inline-block;
