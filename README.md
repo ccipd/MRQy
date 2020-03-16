@@ -3,7 +3,8 @@
 ## Description
 
 
-This tool takes MRI datasets in the file formats (_.dcm_, _.nii_, _.nii.gz_ or _.mha_) as the input. Two Python scripts (_QC.py_ and _QCF.py_) are used to generate several tags and noise/information measurements for quality assessment. These scripts save the calculated measures in a  _.tsv_ file as well as generate _.png_ thumbnails for all images in a subject volume. These are then fed to the bunch of _.js_ scripts to create the user interface (_index.html_) output. The schematic framework of the tool is as follows.
+This tool takes MRI datasets in the file formats (_.dcm_, _.nii_, _.nii.gz_ or _.mha_) as the input. 
+Two Python scripts (_QC.py_ and _QCF.py_) are used to generate several tags and noise/information measurements for quality assessment. These scripts save the calculated measures in a  _.tsv_ file as well as generate _.png_ thumbnails for all images in a subject volume. These are then fed to the bunch of _.js_ scripts to create the user interface (_index.html_) output. The schematic framework of the tool is as follows.
 
 
 
@@ -24,31 +25,32 @@ The current version of the tool has been tested on the Python vresion 3.7.4. The
 
 To test that the code is working fine please try
 ```
-E:\Python_Codes\Github>python QC.py --help
+D:\Downloads\MRQy-master>python QC.py --help
 
 ```
 The output should be 
 ```
-usage: QC.py [-h] [-o OUTDIR] [inputdir [inputdir ...]]
+usage: QC.py [-h] output_folder_name [inputdir [inputdir ...]]
 
 positional arguments:
-  inputdir              input foldername consists of *.mha files. For example:
-                        'E:\Data\Rectal\RectalCancer_Multisite\UH'
+  output_folder_name  the name of a subfolder on the Data directory of the
+                      UserInterface folder.
+  inputdir            input foldername consists of *.mha (*.nii or *.dcm)
+                      files. For example:
+                      'E:\Data\Rectal\RectalCancer_Multisite\UH'
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -o OUTDIR, --outdir OUTDIR
-                        a subfolder on the Data directory of the UserInterface
-                        i.e. E:\Python_Codes\Github\UserInterface\Data\Output
+  -h, --help          show this help message and exit
+  
 ```
-Standard usage is to run ``` QC.py –o output directory “input directory” ``` i.e. 
+Standard usage is to run ``` QC.py –o output_folder_name “input directory” ``` i.e. 
 
 ```
-python QC.py -o E:\Python_Codes\Github\UserInterface\Data\Output "E:\Data\Rectal\RectalCancer_Multisite\UH"
+python QC.py -o output_folder_name "E:\Data\Rectal\RectalCancer_Multisite\input_data_folder"
 
 ```
 There is no need to make a subfolder in the Data directory, just specify its name in the command like above code line.
-Every action will be print in the output console. The thumbnail images in the format of _.png_ will be saved on E:\Python_Codes\Github\UserInterface\Data with its original filename as its subfolder's name. Afterward, double click index.html (on e.g. E:\Python_Codes\Github\UserInterface) to open front end user interface, select the respective results.tsv file from the E:\Python_Codes\Github\UserInterface\Data\Output directory.
+Every action will be print in the output console. The thumbnail images in the format of _.png_ will be saved on "...\UserInterface\Data\output_folder_name" with its original filename as its subfolder's name. Afterward, double click "index.html" (on e.g. "D:\Downloads\MRQy-master\UserInterface") to open front end user interface, select the respective _results.tsv_ file from the e.g. "D:\Downloads\MRQy-master\UserInterface\Data\output_folder_name" directory.
 
 ## Basic Information 
 
@@ -67,7 +69,7 @@ The following figures show the user interface of the tool (index.html).
 ![ui2](https://user-images.githubusercontent.com/50635618/75050201-8a956f00-5499-11ea-8aa7-19babc98cb70.PNG)
 
 
-### Feedback and usage
+## Feedback and usage
 
 Please report and issues, bugfixes, ideas for enhancements via the "Issues" tab
 
