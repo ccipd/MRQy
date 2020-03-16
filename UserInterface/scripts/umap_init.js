@@ -78,7 +78,8 @@ function init_umap (dataset) {
       title:'<b>UMAP Plot</b>',
       titlefont: {
         // family: 'Arial, sans-serif',
-        family: 'Titillium',
+        // family: 'Titillium',
+        family: 'Titillium Web',
         size: 18,
         color: 'black'
       },
