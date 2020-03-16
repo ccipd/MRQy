@@ -42,9 +42,9 @@ function init_umap (dataset) {
         };
 
 
-   	console.log('umap Correct!')
+   	console.log('UMAP Correct!')
 
-    colors1 = Array(ORIGINAL_DATASET.length).fill('#0000FF');
+    colors1 = Array(ORIGINAL_DATASET.length).fill('#00304e');
     var update1 = {'marker':{color: colors1, size:10}};
 
     var trace = {
@@ -77,7 +77,8 @@ function init_umap (dataset) {
       },
       title:'<b>UMAP Plot</b>',
       titlefont: {
-        family: 'Arial, sans-serif',
+        // family: 'Arial, sans-serif',
+        family: 'Titillium',
         size: 18,
         color: 'black'
       },
@@ -88,8 +89,8 @@ function init_umap (dataset) {
     var myPlot = document.getElementById('umap-svg-container');
     myPlot.on('plotly_click', function(data){
         var pn = data.points[0].pointNumber,
-        colors2 = Array(ORIGINAL_DATASET.length).fill('#0000FF');    
-        colors2[pn] = '#FF0000';
+        colors2 = Array(ORIGINAL_DATASET.length).fill('#00304e');    
+        colors2[pn] = '#ffc000';
         var u1 = {'marker':{color: colors1, size:10}};
         var update2 = {'marker':{color: colors2, size:10}};
         Plotly.restyle('umap-svg-container', u1);
@@ -116,8 +117,8 @@ function enter_select_umap_view (case_name) {
     for (var j = 0; j < datagraph[0].text.length; j ++) {
         if (datagraph[0].text[j] == case_name) {
                 var test_value = 1;
-                    colors3 = Array(ORIGINAL_DATASET.length).fill('#0000FF');
-                    colors3[j] = '#FF0000';
+                    colors3 = Array(ORIGINAL_DATASET.length).fill('#00304e');
+                    colors3[j] = '#ffc000';
                     var update3 = {'marker':{color: colors3, size:10}};
                     Plotly.restyle('umap-svg-container', update3);
             } else {
