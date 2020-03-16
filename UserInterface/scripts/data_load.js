@@ -104,16 +104,16 @@ function data_loading () {
 			image_names[j] = ORIGINAL_DATASET2[j]["Name of Images"];
 			patient_names[j] = ORIGINAL_DATASET2[j]["Patient"];
 			delete ORIGINAL_DATASET2[j]["Name of Images"];
-			delete ORIGINAL_DATASET2[j]["Manufacturer"];
-			delete ORIGINAL_DATASET2[j]["VR_x"]
-			delete ORIGINAL_DATASET2[j]["VR_y"]
-			delete ORIGINAL_DATASET2[j]["VR_z"]
+			delete ORIGINAL_DATASET2[j]["MFR"];
+			delete ORIGINAL_DATASET2[j]["VRX"]
+			delete ORIGINAL_DATASET2[j]["VRY"]
+			delete ORIGINAL_DATASET2[j]["VRZ"]
 			delete ORIGINAL_DATASET2[j]["MFS"]
-			delete ORIGINAL_DATASET2[j]["Rows"]
-			delete ORIGINAL_DATASET2[j]["Columns"]
+			delete ORIGINAL_DATASET2[j]["ROWS"]
+			delete ORIGINAL_DATASET2[j]["COLS"]
 			delete ORIGINAL_DATASET2[j]["TR"]
 			delete ORIGINAL_DATASET2[j]["TE"]
-			delete ORIGINAL_DATASET2[j]["Number"]
+			delete ORIGINAL_DATASET2[j]["NUM"]
 			delete ORIGINAL_DATASET2[j]["x"]
 			delete ORIGINAL_DATASET2[j]["y"]
 			delete ORIGINAL_DATASET2[j]["u"]
@@ -129,21 +129,21 @@ function data_loading () {
 			// patient_names[j] = ORIGINAL_DATASET1[j]["Patient"];
 			delete ORIGINAL_DATASET1[j]["Name of Images"];
 			// delete ORIGINAL_DATASET1[j]["Number"]
-			delete ORIGINAL_DATASET1[j]["Mean"]
-			delete ORIGINAL_DATASET1[j]["Range"];
-			delete ORIGINAL_DATASET1[j]["%CV"]
+			delete ORIGINAL_DATASET1[j]["MEAN"]
+			delete ORIGINAL_DATASET1[j]["RNG"];
+			delete ORIGINAL_DATASET1[j]["CV"]
 			delete ORIGINAL_DATASET1[j]["CPP"]
 			delete ORIGINAL_DATASET1[j]["SNR1"]
 			delete ORIGINAL_DATASET1[j]["SNR2"]
 			delete ORIGINAL_DATASET1[j]["SNR3"]
 			delete ORIGINAL_DATASET1[j]["SNR4"]
-			delete ORIGINAL_DATASET1[j]["SNR5"]
 			delete ORIGINAL_DATASET1[j]["CNR"]
 			delete ORIGINAL_DATASET1[j]["CVP"]
+			delete ORIGINAL_DATASET1[j]["CJV"]
 			delete ORIGINAL_DATASET1[j]["EFC"]
 			delete ORIGINAL_DATASET1[j]["FBER"]
 			delete ORIGINAL_DATASET1[j]["PSNR"]
-			delete ORIGINAL_DATASET1[j]["Variance"]
+			delete ORIGINAL_DATASET1[j]["VAR"]
 			delete ORIGINAL_DATASET1[j]["x"]
 			delete ORIGINAL_DATASET1[j]["y"]
 			delete ORIGINAL_DATASET1[j]["u"]
