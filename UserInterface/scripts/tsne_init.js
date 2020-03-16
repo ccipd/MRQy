@@ -45,7 +45,7 @@ function init_tsne (dataset) {
 
    	console.log('t-SNE Correct!')
 
-    colors1 = Array(ORIGINAL_DATASET.length).fill('#0000FF');
+    colors1 = Array(ORIGINAL_DATASET.length).fill('#00304e');
     var update1 = {'marker':{color: colors1, size:10}};
 
     var trace = {
@@ -79,7 +79,8 @@ function init_tsne (dataset) {
       },
       title:'<b>t-SNE Plot</b>',
       titlefont: {
-        family: 'Arial, sans-serif',
+        // family: 'Arial, sans-serif',
+        family: 'Titillium',
         size: 18,
         color: 'black'
       },
@@ -90,8 +91,8 @@ function init_tsne (dataset) {
     var myPlot = document.getElementById('tsne-svg-container');
     myPlot.on('plotly_click', function(data){
         var pn = data.points[0].pointNumber,
-        colors2 = Array(ORIGINAL_DATASET.length).fill('#0000FF');    
-        colors2[pn] = '#FF0000';
+        colors2 = Array(ORIGINAL_DATASET.length).fill('#00304e');    
+        colors2[pn] = '#ffc000';
         // console.log(data.points[0].text)
         // console.log(pn)
         // console.log(data.points[0].text)
@@ -125,8 +126,8 @@ function enter_select_tsne_view (case_name) {
     for (var j = 0; j < datagraph[0].text.length; j ++) {
         if (datagraph[0].text[j] == case_name) {
                 var test_value = 1;
-                    colors3 = Array(ORIGINAL_DATASET.length).fill('#0000FF');
-                    colors3[j] = '#FF0000';
+                    colors3 = Array(ORIGINAL_DATASET.length).fill('#00304e');
+                    colors3[j] = '#ffc000';
                     var update3 = {'marker':{color: colors3, size:10}};
                     Plotly.restyle('tsne-svg-container', update3);
             } else {
@@ -140,86 +141,11 @@ function enter_select_tsne_view (case_name) {
 
 
 
-
-
-
-// function update_tsne (dataset, test_value) {
-
-//     if (test_value == 1){
-//         colors3 = Array(101).fill('#FF0000');
-//         var update3 = {'marker':{color: colors3, size:10}};
-//         Plotly.restyle('tsne-svg-container', update3);
-//         enter_select_mode(CURRENT_SELECTED, true);
-//     }
-
-    // var data = dataset.map(function (d) {
-    //         case_name =  d["Patient"];
-    // });
-
-    // var myPlott = document.getElementById('tsne-svg-container');
-    // var datagraph = myPlott.data;
-    // colors3 = Array(101).fill('#0000FF');
-
-    // for (var j = 0; j < datagraph[0].text.length; j ++) {
-    //     if (datagraph[0].text[j] == case_name){
-    //         colors3[j] = '#FF0000';
-    //         var update3 = {'marker':{color: colors3, size:10}};
-    //         Plotly.restyle('tsne-svg-container', update3);
-
-            // enter_select_mode(case_name, true);
-            // console.log(case_name)
-            // console.log(j)
-
-    //     }
-
-    // };
-
-
-// }
-
-
 function exit_select_tsne_view () {
     Plotly.restyle('tsne-svg-container', SS.fourth);
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// function enter_select_tsne_view (case_name) {
-//     exit_select_tsne_view();
-
-
-//     var myPlott = document.getElementById('tsne-svg-container');
-//     var datagraph = myPlott.data;
-//     colors3 = Array(101).fill('#0000FF');
-
-//     for (var j = 0; j < datagraph[0].text.length; j ++) {
-//         if (datagraph[0].text[j] == case_name){
-//             colors3[j] = '#FF0000';
-//             var update3 = {'marker':{color: colors3, size:10}};
-//             Plotly.restyle('tsne-svg-container', update3);
-//         }
-
-//     };
-
-
-// }
 
 
 
