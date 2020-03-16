@@ -118,7 +118,7 @@ function generate_config_meas (dataset) {
 
 	var colvis_config = {
 		extend: 'collection',
-		text: 'Cols',
+		text: 'Measures',
 		buttons: colvis_buttons_config,
 		fade: 500
 	};
