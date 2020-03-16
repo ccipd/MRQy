@@ -20,7 +20,7 @@ var DEFAULT_HIDDEN_COLUMNS = [
 
 /****************** CHART VIEW ****************/
 // Initialize the bar chart on this attribute.
-var DEFAULT_CHART_ATTRIBUTE = "Number";
+var DEFAULT_CHART_ATTRIBUTE = "NUM";
 
 // Initialize the parallel coordinate on these attributes.
 // Temporarily DEPRECATED. 
