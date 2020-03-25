@@ -1,4 +1,4 @@
-![Picture3](https://user-images.githubusercontent.com/50635618/76575042-70e1b900-6494-11ea-8b39-cb4f189fb13c.png)
+![Picture1](https://user-images.githubusercontent.com/50635618/77593997-b1492a00-6ecb-11ea-939c-c8962f371e5a.png)
 ![gbm_mrqy](https://user-images.githubusercontent.com/50635618/77506445-43095680-6e3c-11ea-9376-7be6f7cdc5d8.gif)
 ![gbm_mrqy](https://user-images.githubusercontent.com/50635618/77496601-b6519f00-6e21-11ea-8f52-16f33d4c66cc.gif)
 
