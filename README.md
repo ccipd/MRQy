@@ -2,7 +2,7 @@
 ![gbm_mrqy](https://user-images.githubusercontent.com/50635618/77506445-43095680-6e3c-11ea-9376-7be6f7cdc5d8.gif)
 ![gbm_mrqy](https://user-images.githubusercontent.com/50635618/77496601-b6519f00-6e21-11ea-8f52-16f33d4c66cc.gif)
 
-
+## Table of Content
 - [Description](#description)
 - [Prerequisites](#prerequisites)
 - [Running](#running)
@@ -11,7 +11,6 @@
   * [User Interface](#user-interface)
 - [Feedback and usage](#feedback-and-usage)
 
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 
 
