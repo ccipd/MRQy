@@ -92,6 +92,10 @@ The following figures show the user interface of the tool (index.html).
 ![FC3](https://user-images.githubusercontent.com/50635618/76790200-c66bdd80-6794-11ea-9954-8abe29112328.PNG)
 
 
+![C1](https://user-images.githubusercontent.com/50635618/78467306-3ce76580-76d9-11ea-8dbd-d43f82cd29a6.PNG)
+![C2](https://user-images.githubusercontent.com/50635618/78467302-3bb63880-76d9-11ea-84ff-ce44f5f8a822.PNG)
+![C3](https://user-images.githubusercontent.com/50635618/78467305-3ce76580-76d9-11ea-96a8-7574042c14c6.PNG)
+
 ## Feedback and usage
 
 Please report and issues, bugfixes, ideas for enhancements via the "Issues" tab
