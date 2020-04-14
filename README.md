@@ -94,4 +94,7 @@ The following figures show the user interface of the tool (index.html).
 
 Please report and issues, bugfixes, ideas for enhancements via the "Issues" tab
 
+You can cite this paper as 
+Sadri, AR, Janowczyk, A, Zou, R, Verma, R, Antunes, J, Madabhushi, A, Tiwari, P, Viswanath, SE, "MRQy: An Open-Source Tool for Quality Control of MR Imaging Data", https://arxiv.org/abs/2004.04871v2, 2020
+
 If you do use the tool in your own work, please drop us a line to let us know.
