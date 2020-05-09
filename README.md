@@ -21,7 +21,7 @@
 
 
 
-## Descriptions
+## Description
 
 
 This tool takes MRI datasets in the file formats (_.dcm_, _.nii_, _.nii.gz_ or _.mha_) as the input. \
