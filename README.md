@@ -8,7 +8,7 @@
 
 
 
-# Table of Content
+# Table of Contents
 - [Description](#description)
 - [Prerequisites](#prerequisites)
 - [Running](#running)
@@ -25,7 +25,7 @@
 
 
 This tool takes MRI datasets in the file formats (_.dcm_, _.nii_, _.nii.gz_ or _.mha_) as the input. \
-Two Python scripts (_QC.py_ and _QCF.py_) are used to generate several tags and noise/information measurements for quality assessment. These scripts save the calculated measures in a  _.tsv_ file as well as generate _.png_ thumbnails for all images in a subject volume. These are then fed to the bunch of _.js_ scripts to create the user interface (_index.html_) output. The schematic framework of the tool is as follows.
+Two Python scripts (_QC.py_ and _QCF.py_) are used to generate several tags and noise/information measurements for quality assessment. These scripts save the calculated measures in a  _.tsv_ file as well as generate _.png_ thumbnails for all images in a subject volume. These are then fed to _.js_ scripts to create the user interface (_index.html_) output. A schematic illustrating the framework of the tool is as follows.
 
 
 
