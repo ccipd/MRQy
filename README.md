@@ -37,16 +37,18 @@ Two Python scripts (_QC.py_ and _QCF.py_) are used to generate several tags and 
 
 ## Prerequisites
 
-The current version of the tool has been tested on the Python vresion 3.7.4. The required Python packages are listed in the following figure.
+The current version of the tool has been tested on the Python 3.6+  
+You must have [pipenv](https://pipenv-fork.readthedocs.io/en/latest/basics.html) installed on your environment to run MRQy locally. It will pull down all the dependencies listed in the diagram.
 
 ![Picture7](https://user-images.githubusercontent.com/50635618/76580525-a2638000-64a6-11ea-8a37-38e95c4693c3.png)
 
-
 ## Running
 
-To test that the code is working fine please try
+For local development, test that the code is functional
 ```
-D:\Downloads\MRQy-master>python QC.py --help
+MRQy % pipenv shell
+(mrqy) MRQy% pipenv install .
+(mrqy) MRQy% python -m mrqy.QC --help
 
 ```
 The output should be 
@@ -72,6 +74,20 @@ python QC.py output_folder_name "E:\Data\Rectal\RectalCancer_Multisite\input_dat
 There is no need to make a subfolder in the Data directory, just specify its name in the command like above code line.\
 Every action will be printed in the output console. \
 The thumbnail images in the format of _.png_ will be saved on "...\UserInterface\Data\output_folder_name" with its original filename as its subfolder's name. Afterward, double click "index.html" (on e.g. "D:\Downloads\MRQy-master\UserInterface") to open front end user interface, select the respective _results.tsv_ file from the e.g. "D:\Downloads\MRQy-master\UserInterface\Data\output_folder_name" directory.
+
+## Contribution guidelines
+
+### Testing
+
+```
+MRQy % pipenv shell
+(mrqy) MRQy% pipenv install .
+(mrqy) MRQY% pipenv run -m pytest tests/
+```
+
+### Building on Travis
+The recommended path is to follow the [Forking Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow). Create a Travis CI build for your github fork to validate your fork before pushing a merge request to master.
+
 
 ## Basic Information 
 
