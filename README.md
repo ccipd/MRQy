@@ -108,7 +108,7 @@ The following figures show the user interface of the tool (index.html).
 
 ## Feedback and usage
 
-Please report and issues, bugfixes, ideas for enhancements via the "Issues" tab
+Please report and issues, bugfixes, ideas for enhancements via the "[Issues](https://github.com/ccipd/MRQy/issues)" tab.
 
 Detailed usage instructions and an example of using MRQy to analyze TCIA datasets are in the [Wiki](https://github.com/ccipd/MRQy/wiki).
 
