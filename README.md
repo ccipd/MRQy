@@ -38,7 +38,7 @@ Two Python scripts (_QC.py_ and _QCF.py_) are used to generate several tags and 
 ## Prerequisites
 
 The current version of the tool has been tested on the Python 3.6+  
-You must have [pipenv](https://pipenv-fork.readthedocs.io/en/latest/basics.html) installed on your environment to run MRQy locally. It will pull down all the dependencies listed in the diagram.
+You must have [pipenv](https://pipenv-fork.readthedocs.io/en/latest/basics.html) installed on your environment to run MRQy locally. It will pull all the dependencies listed in the diagram.
 
 ![Picture7](https://user-images.githubusercontent.com/50635618/76580525-a2638000-64a6-11ea-8a37-38e95c4693c3.png)
 
@@ -71,9 +71,9 @@ Standard usage is to run ``` QC.py output_folder_name “input directory” ``` 
 python QC.py output_folder_name "E:\Data\Rectal\RectalCancer_Multisite\input_data_folder"
 
 ```
-There is no need to make a subfolder in the Data directory, just specify its name in the command like above code line.\
+There is no need to make a subfolder in the Data directory, just specify its name in the command as in the above code.\
 Every action will be printed in the output console. \
-The thumbnail images in the format of _.png_ will be saved on "...\UserInterface\Data\output_folder_name" with its original filename as its subfolder's name. Afterward, double click "index.html" (on e.g. "D:\Downloads\MRQy-master\UserInterface") to open front end user interface, select the respective _results.tsv_ file from the e.g. "D:\Downloads\MRQy-master\UserInterface\Data\output_folder_name" directory.
+The thumbnail images in the format of _.png_ will be saved in "...\UserInterface\Data\output_folder_name" with its original filename as the subfolder name. Afterward, double click "index.html" (on e.g. "D:\Downloads\MRQy-master\UserInterface") to open front-end user interface, and select the respective _results.tsv_ file from the correct location e.g. "D:\Downloads\MRQy-master\UserInterface\Data\output_folder_name" directory.
 
 ## Contribution guidelines
 
@@ -109,6 +109,8 @@ The following figures show the user interface of the tool (index.html).
 ## Feedback and usage
 
 Please report and issues, bugfixes, ideas for enhancements via the "Issues" tab
+
+Detailed usage instructions and an example of using MRQy to analyze TCIA datasets are in the [Wiki](https://github.com/ccipd/MRQy/wiki).
 
 You can cite this in any associated publication as:  
 Sadri, AR, Janowczyk, A, Zou, R, Verma, R, Antunes, J, Madabhushi, A, Tiwari, P, Viswanath, SE, "MRQy: An Open-Source Tool for Quality Control of MR Imaging Data", https://arxiv.org/abs/2004.04871v2, 2020
