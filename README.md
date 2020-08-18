@@ -113,6 +113,6 @@ Please report and issues, bugfixes, ideas for enhancements via the "[Issues](htt
 Detailed usage instructions and an example of using MRQy to analyze TCIA datasets are in the [Wiki](https://github.com/ccipd/MRQy/wiki).
 
 You can cite this in any associated publication as:  
-Sadri, AR, Janowczyk, A, Zou, R, Verma, R, Antunes, J, Madabhushi, A, Tiwari, P, Viswanath, SE, "MRQy: An Open-Source Tool for Quality Control of MR Imaging Data", https://arxiv.org/abs/2004.04871v2, 2020
+Sadri, AR, Janowczyk, A, Zou, R, Verma, R, Antunes, J, Madabhushi, A, Tiwari, P, Viswanath, SE, "MRQy: An Open-Source Tool for Quality Control of MR Imaging Data", https://arxiv.org/abs/2004.04871, 2020
 
 If you do use the tool in your own work, please drop us a line to let us know.
