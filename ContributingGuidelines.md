@@ -31,7 +31,7 @@ You should also check out [the wiki](https://github.com/ccipd/MRQy/wiki).
 
 If you use MRQy in your research, please **cite the paper**:
 
-_Sadri, AR, Janowczyk, A, Zou, R, Verma, R, Antunes, J, Madabhushi, A, Tiwari, P, Viswanath, SE, "MRQy: An Open-Source Tool for Quality Control of MR Imaging Data", https://arxiv.org/abs/2004.04871v2, 2020_ [[Link]](https://arxiv.org/abs/2004.04871v2)
+_Sadri, AR, Janowczyk, A, Zou, R, Verma, R, Antunes, J, Madabhushi, A, Tiwari, P, Viswanath, SE, "MRQy: An Open-Source Tool for Quality Control of MR Imaging Data", https://arxiv.org/abs/2004.04871, 2020_ [[Link]](https://arxiv.org/abs/2004.04871)
 
 Writing and supporting such tools take _a lot_ of time. So whenever you use any software for research, please remember to check how it should be cited!
 
