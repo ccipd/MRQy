@@ -1,14 +1,14 @@
 """
-Created on Sun Feb 10 11:21:31 2019, Last update on Sun Mar 15 00:01:05 2020
+Created on Sun Feb 10 11:21:31 2019, Last update on Sun Nov 22 23:14:24 2020
 
-@author: Amir Reza Sadri
+@author: Amir Reza Sadri ars329@case.edu
 """
 
 import os
 import numpy as np
 import argparse
 import datetime
-import mrqy.QCF as QCF
+import QCF
 import time
 from medpy.io import load    # for .mha, .nii, or .nii.gz files
 import matplotlib.pyplot as plt
@@ -20,25 +20,26 @@ from scipy.cluster.vq import whiten
 from sklearn.manifold import TSNE
 import umap
 import scipy
-import warnings
-import logging      
+from scipy.io import loadmat
+import warnings        
 warnings.filterwarnings("ignore")    # remove all warnings like conversion thumbnails
-logging.basicConfig(level=logging.WARN)
 
 nfiledone = 0
 csv_report = None
 first = True
 headers = []
-overwrite_flag = "w"  
 
-def parse_patient_names(root):
-    logging.warning('MRQy is starting at ' + root)
+
+def patient_name(root):
+    print('MRQy is starting....')
     files = [os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(root) 
-            for filename in filenames 
-            if filename.endswith('.dcm') 
-            or filename.endswith('.mha')
-            or filename.endswith('.nii')
-            or filename.endswith('.gz')]
+                for filename in filenames 
+                if filename.endswith('.dcm') 
+                or filename.endswith('.mha')
+                or filename.endswith('.nii')
+                or filename.endswith('.gz')
+                or filename.endswith('.mat')]
+    mats = [i for i in files if i.endswith('.mat')]
     dicoms = [i for i in files if i.endswith('.dcm')]
     mhas = [i for i in files 
             if i.endswith('.mha')
@@ -46,24 +47,42 @@ def parse_patient_names(root):
             or i.endswith('.gz')]
     mhas_subjects = [os.path.basename(scan)[:os.path.basename(scan).index('.')] for scan in mhas]
     dicom_subjects = []
-    for i in dicoms:
-        dicom_subjects.append(pydicom.dcmread(i).PatientID)  
-    duplicateFrequencies = {}
-    for i in dicom_subjects:
-        duplicateFrequencies[i] = dicom_subjects.count(i)
-    subjects_id = []
-    subjects_number = []
-    for i in range(len(duplicateFrequencies)):
-         subjects_id.append(list(duplicateFrequencies.items())[i][0])
-         subjects_number.append(list(duplicateFrequencies.items())[i][1])
-    ind = [0] + list(accumulate(subjects_number))
-    splits = [dicoms[ind[i]:ind[i+1]] for i in range(len(ind)-1)]
-    subjects = subjects_id + mhas_subjects
-    logging.warning('The number of patients is {}'.format(len(subjects)))
-    return files, subjects, splits, mhas, mhas_subjects
+    mat_subjects = [os.path.basename(scan)[:os.path.basename(scan).index('.')] for scan in mats]
+    
+    if folders_flag == "False":
+        for i in dicoms:
+            dicom_subjects.append(pydicom.dcmread(i).PatientID) 
+        duplicateFrequencies = {}
+        for i in dicom_subjects:
+            duplicateFrequencies[i] = dicom_subjects.count(i)
+        
+        subjects_id = []
+        subjects_number = []
+        for i in range(len(duplicateFrequencies)):
+              subjects_id.append(list(duplicateFrequencies.items())[i][0])
+              subjects_number.append(list(duplicateFrequencies.items())[i][1])
+        ind = [0] + list(accumulate(subjects_number))
+        splits = [dicoms[ind[i]:ind[i+1]] for i in range(len(ind)-1)]
+    elif folders_flag == "True":
+        dicom_subjects = [d for d in os.listdir(root) if os.path.isdir(root + os.sep + d)]
+        subjects_number = []
+        for i in range(len(dicom_subjects)):
+            subjects_number.append(
+                len([os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(root + os.sep + dicom_subjects[i]) 
+            for filename in filenames 
+            if filename.endswith('.dcm')]))
+        subjects_id  = dicom_subjects
+        ind = [0] + list(accumulate(subjects_number))
+        splits = [dicoms[ind[i]:ind[i+1]] for i in range(len(ind)-1)]
+
+    
+    subjects = subjects_id + mhas_subjects + mat_subjects
+    print('The number of patients is {}'.format(len(subjects)))
+    return files, subjects, splits, mhas, mhas_subjects, mats, mat_subjects
 
 
-def volume_dicom(scans):   
+def volume_dicom(scans, name):
+    scans = scans[int(0.005 *len(scans)*(100 - middle_size)):int(0.005 *len(scans)*(100 + middle_size))]
     inf = pydicom.dcmread(scans[0])
     if hasattr(inf, 'MagneticFieldStrength'):
         if inf.MagneticFieldStrength > 10:
@@ -73,23 +92,46 @@ def volume_dicom(scans):
         
     if hasattr(inf, 'Manufacturer') == False:
         inf.Manufacturer = ''
+    if  hasattr(inf, 'RepetitionTime') == False:
+            inf.RepetitionTime = 0
+    if  hasattr(inf, 'EchoTime') == False:
+            inf.EchoTime = 0
+    if folders_flag == "False":
+        name_vale = inf.PatientID
+    elif folders_flag == "True":
+        name_vale = name
         
     tags = {
-             'ID': inf.PatientID,
-             'Manufacturer': inf.Manufacturer,
-             'VR_x': format(inf.PixelSpacing[0], '.2f'),
-             'VR_y': format(inf.PixelSpacing[1], '.2f'),
-             'VR_z': format(inf.SliceThickness, '.2f'),
+             'ID': name_vale,
+             'MFR': inf.Manufacturer,
+             'VRX': format(inf.PixelSpacing[0], '.2f'),
+             'VRY': format(inf.PixelSpacing[1], '.2f'),
+             'VRZ': format(inf.SliceThickness, '.2f'),
              'MFS': inf.MagneticFieldStrength,
-             'Rows': int(inf.Rows),
-             'Columns': int(inf.Columns),
-             'TR': format(inf.RepetitionTime, '.2f'),
-             'TE': format(inf.EchoTime, '.2f'),
-             'Number': len(scans)
+             'ROWS': int(inf.Rows),
+             'COLS': int(inf.Columns),
+             # 'TR': format(inf.RepetitionTime, '.2f'),
+             'TR': inf.RepetitionTime,
+             # 'TE': format(inf.EchoTime, '.2f'),
+             'TE': inf.EchoTime,
+             'NUM': len(scans)
     }
-    
+    tag_values = []
+    if args.t != 0:
+        for de in tag_list:
+            # if hasattr(inf, de) == False or inf.data_element(de).value == '':
+            if hasattr(inf, de) == False:
+                value = ''
+            else:
+                value = inf.data_element(de).value
+            tag_values.append(value)
+        res_dct = dict(zip(iter(tag_names), iter(tag_values)))
+        tags.update(res_dct)
+        
     slices = [pydicom.read_file(s) for s in scans]
     slices.sort(key = lambda x: int(x.InstanceNumber))
+    # PL = pd.DataFrame([s.pixel_array for s in slices], columns=['images'])
+    # images = PL['images'].to_numpy().astype(np.int64)
     images = np.stack([s.pixel_array for s in slices])
     images = images.astype(np.int64)
     return images, tags
@@ -98,20 +140,45 @@ def volume_notdicom(scan, name):
     image_data, image_header = load(scan)
     images = [image_data[:,:,i] for i in range(np.shape(image_data)[2])]
     return images, name, image_header      
-    
+
+
+def volume_mat(mat_scan, name): 
+    v1 = loadmat(mat_scan)['vol']
+    tags = {'ID': name}
+    return v1, tags
+
+
 def saveThumbnails_dicom(v, output):
+    if save_masks_flag!='False':
+        ffolder = output + '_foreground_masks'
+        os.makedirs(ffolder + os.sep + v[1]['ID'])
+    elif save_masks_flag=='False':
+        ffolder = output 
     os.makedirs(output + os.sep + v[1]['ID'])
-    for i in range(len(v[0])):
+    for i in range(0, len(v[0]), sample_size):
         plt.imsave(output + os.sep + v[1]['ID'] + os.sep + v[1]['ID'] + '(%d).png' % i, v[0][i], cmap = cm.Greys_r)
-        # logging.debug('image number %d out of %d is saved to %s' % (int(i+1), len(v[0]),output + os.sep + v[1]['ID']))
-    logging.warning('The number of %d images are saved to %s' % (len(v[0]),output + os.sep + v[1]['ID']))
-    
+    print('The number of %d images are saved to %s' % (len(v[0]),output + os.sep + v[1]['ID']))
+    return ffolder + os.sep + v[1]['ID']
+
+def saveThumbnails_mat(v, output):
+    if save_masks_flag!='False':
+        ffolder = output + '_foreground_masks'
+        os.makedirs(ffolder + os.sep + v[1]['ID'])
+    elif save_masks_flag=='False':
+        ffolder = output 
+    os.makedirs(output + os.sep + v[1]['ID'])
+    for i in range(np.shape(v[0])[2]):
+        plt.imsave(output + os.sep + v[1]['ID']+ os.sep + v[1]['ID'] + '(%d).png' % int(i+1), v[0][:,:,i], cmap = cm.Greys_r)
+    print('The number of %d images are saved to %s' % (np.shape(v[0])[2],output + os.sep + v[1]['ID']))
+    return ffolder + os.sep + v[1]['ID']
+
+
 def saveThumbnails_nondicom(v, output):
     os.makedirs(output + os.sep + v[1])
     for i in range(len(v[0])):
         plt.imsave(output + os.sep + v[1] + os.sep + v[1] + '(%d).png' % int(i+1), scipy.ndimage.rotate(v[0][i],270), cmap = cm.Greys_r)
-        # logging.debug('image number %d out of %d is saved to %s' % (int(i+1), len(v[0]),output + os.sep + v[1]))
-    logging.warn('The number of %d images are saved to %s' % (len(v[0]),output + os.sep + v[1]))
+        # print('image number %d out of %d is saved to %s' % (int(i+1), len(v[0]),output + os.sep + v[1]))
+    print('The number of %d images are saved to %s' % (len(v[0]),output + os.sep + v[1]))
 
 def worker_callback(s,fname_outdir):
     global csv_report, first, nfiledone
@@ -127,7 +194,7 @@ def worker_callback(s,fname_outdir):
     csv_report.write("\t".join([str(s[field]) for field in s["output"]])+"\n")
     csv_report.flush()
     nfiledone += 1
-    logging.warning('The results are updated.')
+    print('The results are updated.')
     
 
 
@@ -138,10 +205,7 @@ def tsv_to_dataframe(tsvfileaddress):
 def data_whitening(dframe):
     dframe = dframe.fillna('N/A')
     df = dframe.copy()
-    df = df.drop(df.columns[0], axis=1)
-    df = df.drop(df.columns[0], axis=1)
-    df = df.drop(df.columns[0], axis=1)
-    df = df.drop(df.columns[0], axis=1)
+    df = df.select_dtypes(exclude=['object'])
     ds = whiten(df)
     return ds
 
@@ -164,6 +228,8 @@ def cleanup(final_address, per):
     hf = pd.read_csv(final_address, sep='\t',  nrows=1)
     hf.to_csv(final_address, index = None, header=True, sep = '\t', mode = 'w')
     df.to_csv(final_address, index = None, header=True, sep = '\t', mode = 'a')
+    return df
+
 
 def print_msg_box(msg, indent=1, width=None, title=None):
     lines = msg.split('\n')
@@ -176,13 +242,12 @@ def print_msg_box(msg, indent=1, width=None, title=None):
         box += f'║{space}{"-" * len(title):<{width}}{space}║\n'  
     box += ''.join([f'║{space}{line:<{width}}{space}║\n' for line in lines])
     box += f'╚{"═" * (width + indent * 2)}╝' 
-    logging.warning(box)   
+    print(box)   
     
-"""
-main function container TODO add more comments on args 
-"""    
-def main(): 
-    start_time = time.time()
+    
+
+if __name__ == '__main__':
+    start_time = time.time() 
     headers.append(f"start_time:\t{datetime.datetime.now()}")
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('output_folder_name',
@@ -191,32 +256,92 @@ def main():
     parser.add_argument('inputdir',
                         help = "input foldername consists of *.mha (*.nii or *.dcm) files. For example: 'E:\\Data\\Rectal\\input_data_folder'",
                         nargs = "*")
-
+    parser.add_argument('-r', help="folders as name", default=False)
+    
+    parser.add_argument('-s', help="save foreground masks", default=False)
+    
+    parser.add_argument('-b', help="number of samples", default=1, type = int)
+    parser.add_argument('-u', help="percent of middle images", default=100)
+    parser.add_argument('-t', help="the address of the user-specified tags list (*.txt)", default=0)
+    parser.add_argument('-c', help="if yes the ch computes objects", default=False)
+    
     args = parser.parse_args() 
     root = args.inputdir[0]
-    print_forlder_note = os.getcwd() + os.sep + 'UserInterface' 
-    fname_outdir = print_forlder_note + os.sep + 'Data' + os.sep + args.output_folder_name + '_' + time.strftime("%m%d%Y%H:%M:%S")      
-    headers.append(f"outdir:\t{os.path.realpath(fname_outdir)}") 
-    patients, names, dicom_spil, nondicom_spli, nondicom_names = parse_patient_names(root)
+    
+    if args.r == 0:
+        folders_flag = "False"
+    else: 
+        folders_flag = args.r
+    
+    if args.s == 0:
+        save_masks_flag = "False" 
+    else: 
+        save_masks_flag = args.s
+        
+    if args.b != 1:
+        sample_size = args.b
+    else: 
+        sample_size = 1
+        
+    if args.u != 100:
+        middle_size = int(args.u)
+    else: 
+        middle_size = 100
+    
+    if args.t != 0:
+        tag_names = [line.strip() for line in open(args.t, "r")]
+        tag_list = [line.strip().replace(" ", "") for line in open(args.t, "r")]
 
-    if len(dicom_spil) > 0 and len(nondicom_spli) > 0:
+    
+    if args.c == 0:
+        ch_flag = "False"
+    else: 
+        ch_flag = args.c 
+    
+    
+    print_forlder_note = os.getcwd() + os.sep + 'UserInterface' 
+    fname_outdir = print_forlder_note + os.sep + 'Data' + os.sep + args.output_folder_name
+    overwrite_flag = "w"        
+    headers.append(f"outdir:\t{os.path.realpath(fname_outdir)}") 
+    patients, names, dicom_spil, nondicom_spli, nondicom_names, mat_spli, mat_names = patient_name(root)
+
+    if len(dicom_spil) > 0 and len(nondicom_spli) > 0 and len(mat_spli) > 0:
         dicom_flag = True
         nondicom_flag = True
-    if len(dicom_spil) > 0 and len(nondicom_spli) == 0:
+        mat_flag = True
+    if len(dicom_spil) > 0 and len(nondicom_spli) > 0 and len(mat_spli) == 0:
+        dicom_flag = True
+        nondicom_flag = True
+        mat_flag = False
+    if len(dicom_spil) > 0 and len(nondicom_spli) == 0 and len(mat_spli) == 0:
         dicom_flag = True
         nondicom_flag = False
-    if len(dicom_spil) == 0 and len(nondicom_spli) > 0:
+        mat_flag = False
+    if len(dicom_spil) == 0 and len(nondicom_spli) > 0 and len(mat_spli) == 0:
         dicom_flag = False
         nondicom_flag = True
-    if len(dicom_spil) == 0 and len(nondicom_spli) == 0:
-        logging.error('The input folder is empty!')
+        mat_flag = False
+    if len(dicom_spil) == 0 and len(nondicom_spli) > 0 and len(mat_spli) > 0:
+        dicom_flag = False
+        nondicom_flag = True
+        mat_flag = True
+    if len(dicom_spil) == 0 and len(nondicom_spli) == 0 and len(mat_spli) > 0:
+        dicom_flag = False
+        nondicom_flag = False
+        mat_flag = True
+    if len(dicom_spil) > 0 and len(nondicom_spli) == 0 and len(mat_spli) > 0:
+        dicom_flag = True
+        nondicom_flag = False
+        mat_flag = True
+    if len(dicom_spil) == 0 and len(nondicom_spli) == 0 and len(mat_spli) == 0:
+        print('The input folder is empty or includes unsupported files format!')
     
     for i in range(len(names)):
         if dicom_flag:
             for j in range(len(dicom_spil)):
-                v = volume_dicom(dicom_spil[j])
-                saveThumbnails_dicom(v,fname_outdir)
-                s = QCF.BaseVolume_dicom(fname_outdir, v,j+1)
+                v = volume_dicom(dicom_spil[j], names[j])
+                folder_foregrounds = saveThumbnails_dicom(v,fname_outdir)
+                s = QCF.BaseVolume_dicom(fname_outdir, v,j+1,folder_foregrounds, sample_size, ch_flag)
                 worker_callback(s,fname_outdir)
             dicom_flag = False
             
@@ -227,21 +352,31 @@ def main():
                 s = QCF.BaseVolume_nondicom(fname_outdir, v,l+1)
                 worker_callback(s,fname_outdir)
             nondicom_flag = False
+        
+        if mat_flag:
+            for j in range(len(mat_spli)):
+                v = volume_mat(mat_spli[j], mat_names[j])
+                folder_foregrounds = saveThumbnails_mat(v,fname_outdir)
+                s = QCF.BaseVolume_mat(fname_outdir, v,j+1,folder_foregrounds)
+                worker_callback(s,fname_outdir)
+            mat_flag = False
 
     address = fname_outdir + os.sep + "results" + ".tsv" 
-    cleanup(address, 30)
+    df = cleanup(address, 30)
+    df = df.drop(['Name of Images'], axis=1)
+    df = df.rename(columns={"#dataset:Patient": "Patient", 
+                            "x":"TSNEX","y":"TSNEY", "u":"UMAPX", "v":"UMAPY" })
+    df = df.fillna('N/A')
+    df.to_csv(fname_outdir + os.sep +'IQM.csv',index=False)
+    print("The IQMs data are saved in the {} file. ".format(fname_outdir + os.sep + "IQM.csv"))
     
-    
-    logging.warning("Done!")
-    runtime = format((time.time() - start_time)/60, '.2f')
-    logging.warning("MRQy program took {} minutes for {} subjects and the overal {} MRI slices to run.".format(runtime, len(names),len(patients)))
+    print("Done!")
+    print("MRQy program took", format((time.time() - start_time)/60, '.2f'), \
+          "minutes for {} subjects and the overal {} MRI slices to run.".format(len(names),len(patients)))
     
     msg = "Please go to the '{}' directory and open up the 'index.html' file.\n".format(print_forlder_note) + \
     "Click on 'View Results' and select '{}' file.\n".format(fname_outdir + os.sep + "results.tsv") 
           
     print_msg_box(msg, indent=3, width=None, title="To view the final MRQy interface results:")
-
-if __name__ == '__main__':
-    main()
     
     
