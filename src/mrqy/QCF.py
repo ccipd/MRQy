@@ -1,29 +1,29 @@
 """
-Created on Sun Feb 10 11:21:31 2019, Last update on Sun Mar 15 00:01:05 2020
+Created on Sun Feb 10 11:21:31 2019, Last update on Sun Nov 22 23:14:24 2020
 
-@author: Amir Reza Sadri
+@author: Amir Reza Sadri ars329@case.edu
 """
 
 import os
 import numpy as np
 from scipy.signal import convolve2d as conv2
 from skimage.filters import threshold_otsu
-from skimage.morphology import convex_hull_image
+from skimage.morphology import convex_hull_image,convex_hull_object
 from skimage import exposure as ex
 from skimage.filters import median
 from skimage.morphology import square
 from skimage.util import pad
 import warnings
-import logging
-logging.basicConfig(level=logging.WARN)
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import scipy
 
 warnings.filterwarnings("ignore")
 
-sample_size = 1
 
 class BaseVolume_dicom(dict):
 
-    def __init__(self, fname_outdir, v, ol):
+    def __init__(self, fname_outdir, v, ol,folder_foregrounds, sample_size, ch_flag):
         dict.__init__(self)
 
         self["warnings"] = [] 
@@ -31,43 +31,46 @@ class BaseVolume_dicom(dict):
         self.addToPrintList("Patient", v[1]['ID'], v, ol, 170)
         self["outdir"] = fname_outdir
         self.addToPrintList("Name of Images", os.listdir(fname_outdir + os.sep + v[1]['ID']), v, ol, 100)
-        self.addToPrintList("MFR", v[1]['Manufacturer'], v, ol, 1)
-        self.addToPrintList("MFS", v[1]['MFS'], v, ol, 2)
-        self.addToPrintList("VRX", v[1]['VR_x'], v, ol, 3)
-        self.addToPrintList("VRY", v[1]['VR_y'], v, ol, 4)
-        self.addToPrintList("VRZ", v[1]['VR_z'], v, ol, 5)
-        self.addToPrintList("ROWS", v[1]['Rows'], v, ol, 6)
-        self.addToPrintList("COLS", v[1]['Columns'], v, ol, 7)
-        self.addToPrintList("TR", v[1]['TR'], v, ol, 8)
-        self.addToPrintList("TE", v[1]['TE'], v, ol, 9)
+        for i,j in enumerate(v[1]):
+            if i != 0:
+                self.addToPrintList(j, v[1][j], v, ol, i)
+        # self.addToPrintList("MFR", v[1]['Manufacturer'], v, ol, 1)
+        # self.addToPrintList("MFS", v[1]['MFS'], v, ol, 2)
+        # self.addToPrintList("VRX", v[1]['VR_x'], v, ol, 3)
+        # self.addToPrintList("VRY", v[1]['VR_y'], v, ol, 4)
+        # self.addToPrintList("VRZ", v[1]['VR_z'], v, ol, 5)
+        # self.addToPrintList("ROWS", v[1]['Rows'], v, ol, 6)
+        # self.addToPrintList("COLS", v[1]['Columns'], v, ol, 7)
+        # self.addToPrintList("TR", v[1]['TR'], v, ol, 8)
+        # self.addToPrintList("TE", v[1]['TE'], v, ol, 9)
         self["os_handle"] = v[0]
-        self.addToPrintList("NUM", v[1]['Number'], v, ol, 10)
-        self.addToPrintList("MEAN", vol(v, sample_size, "Mean"), v, ol, 11)
-        self.addToPrintList("RNG", vol(v, sample_size, "Range"), v, ol, 12)
-        self.addToPrintList("VAR", vol(v, sample_size, "Variance"), v, ol, 13)
-        self.addToPrintList("CV", vol(v, sample_size, "CV"), v, ol, 14)
-        self.addToPrintList("CPP", vol(v, sample_size, "CPP"), v, ol, 15)
-        self.addToPrintList("PSNR", vol(v, sample_size, "PSNR"), v, ol, 16)
-        self.addToPrintList("SNR1", vol(v, sample_size, "SNR1"), v, ol, 17)
-        self.addToPrintList("SNR2", vol(v, sample_size, "SNR2"), v, ol, 18)
-        self.addToPrintList("SNR3", vol(v, sample_size, "SNR3"), v, ol, 19)
-        self.addToPrintList("SNR4", vol(v, sample_size, "SNR4"), v, ol, 20)
-        self.addToPrintList("CNR", vol(v, sample_size, "CNR"), v, ol, 21)
-        self.addToPrintList("CVP", vol(v, sample_size, "CVP"), v, ol, 22)
-        self.addToPrintList("CJV", vol(v, sample_size, "CJV"), v, ol, 23)
-        self.addToPrintList("EFC", vol(v, sample_size, "EFC"), v, ol, 24)
-        self.addToPrintList("FBER", vol(v, sample_size, "FBER"), v, ol, 25)
+        # self.addToPrintList("NUM", v[1]['Number'], v, ol, 10)
+        self.addToPrintList("MEAN", vol(v, sample_size, "Mean",folder_foregrounds, ch_flag), v, ol, 11)
+        self.addToPrintList("RNG", vol(v, sample_size, "Range",folder_foregrounds, ch_flag), v, ol, 12)
+        self.addToPrintList("VAR", vol(v, sample_size, "Variance",folder_foregrounds, ch_flag), v, ol, 13)
+        self.addToPrintList("CV", vol(v, sample_size, "CV",folder_foregrounds, ch_flag), v, ol, 14)
+        self.addToPrintList("CPP", vol(v, sample_size, "CPP",folder_foregrounds, ch_flag), v, ol, 15)
+        self.addToPrintList("PSNR", vol(v, sample_size, "PSNR",folder_foregrounds, ch_flag), v, ol, 16)
+        self.addToPrintList("SNR1", vol(v, sample_size, "SNR1",folder_foregrounds, ch_flag), v, ol, 17)
+        self.addToPrintList("SNR2", vol(v, sample_size, "SNR2",folder_foregrounds, ch_flag), v, ol, 18)
+        self.addToPrintList("SNR3", vol(v, sample_size, "SNR3",folder_foregrounds, ch_flag), v, ol, 19)
+        self.addToPrintList("SNR4", vol(v, sample_size, "SNR4",folder_foregrounds, ch_flag), v, ol, 20)
+        self.addToPrintList("CNR", vol(v, sample_size, "CNR",folder_foregrounds, ch_flag), v, ol, 21)
+        self.addToPrintList("CVP", vol(v, sample_size, "CVP",folder_foregrounds, ch_flag), v, ol, 22)
+        self.addToPrintList("CJV", vol(v, sample_size, "CJV",folder_foregrounds, ch_flag), v, ol, 23)
+        self.addToPrintList("EFC", vol(v, sample_size, "EFC",folder_foregrounds, ch_flag), v, ol, 24)
+        self.addToPrintList("FBER", vol(v, sample_size, "FBER",folder_foregrounds, ch_flag), v, ol, 25)
         
     def addToPrintList(self, name, val, v, ol, il):
         self[name] = val
         self["output"].append(name)
         if name != 'Name of Images' and il != 170:
-            logging.debug('%s-%s. The %s of the patient with the name of <%s> is %s' % (ol,il,name, v[1]['ID'], val))
+            print('%s-%s. The %s of the patient with the name of <%s> is %s' % (ol,il,name, v[1]['ID'], val))
 
 
 class BaseVolume_nondicom(dict):
 
-    def __init__(self, fname_outdir, v, ol):
+    def __init__(self, fname_outdir, v, ol, sample_size):
         dict.__init__(self)
 
         self["warnings"] = [] 
@@ -79,32 +82,74 @@ class BaseVolume_nondicom(dict):
         self.addToPrintList("VRY", format(v[2].get_voxel_spacing()[1], '.2f'), v, ol, 2)
         self.addToPrintList("VRZ", format(v[2].get_voxel_spacing()[2], '.2f'), v, ol, 3)
         self.addToPrintList("ROWS", np.shape(v[0])[1], v, ol, 4)
-        self.addToPrintList("COLs", np.shape(v[0])[2], v, ol, 5)
+        self.addToPrintList("COLS", np.shape(v[0])[2], v, ol, 5)
         self["os_handle"] = v[0]
         self.addToPrintList("NUM", len(v[0]), v, ol, 6)
-        self.addToPrintList("MEAN", vol(v, sample_size, "Mean"), v, ol, 7)
-        self.addToPrintList("RNG", vol(v, sample_size, "Range"), v, ol, 8)
-        self.addToPrintList("VAR", vol(v, sample_size, "Variance"), v, ol, 9)
-        self.addToPrintList("CV", vol(v, sample_size, "CV"), v, ol, 10)
-        self.addToPrintList("CPP", vol(v, sample_size, "CPP"), v, ol, 11)
-        self.addToPrintList("PSNR", vol(v, sample_size, "PSNR"), v, ol, 12)
-        self.addToPrintList("SNR1", vol(v, sample_size, "SNR1"), v, ol, 13)
-        self.addToPrintList("SNR2", vol(v, sample_size, "SNR2"), v, ol, 14)
-        self.addToPrintList("SNR3", vol(v, sample_size, "SNR3"), v, ol, 15)
-        self.addToPrintList("SNR4", vol(v, sample_size, "SNR4"), v, ol, 16)
-        self.addToPrintList("CNR", vol(v, sample_size, "CNR"), v, ol, 17)
-        self.addToPrintList("CVP", vol(v, sample_size, "CVP"), v, ol, 18)
-        self.addToPrintList("CJV", vol(v, sample_size, "CJV"), v, ol, 19)
-        self.addToPrintList("EFC", vol(v, sample_size, "EFC"), v, ol, 20)
-        self.addToPrintList("FBER", vol(v, sample_size, "FBER"), v, ol, 21)
+        self.addToPrintList("MEAN", vol(v, sample_size, "Mean",fname_outdir), v, ol, 7)
+        self.addToPrintList("RNG", vol(v, sample_size, "Range",fname_outdir), v, ol, 8)
+        self.addToPrintList("VAR", vol(v, sample_size, "Variance",fname_outdir), v, ol, 9)
+        self.addToPrintList("CV", vol(v, sample_size, "CV",fname_outdir), v, ol, 10)
+        self.addToPrintList("CPP", vol(v, sample_size, "CPP",fname_outdir), v, ol, 11)
+        self.addToPrintList("PSNR", vol(v, sample_size, "PSNR",fname_outdir), v, ol, 12)
+        self.addToPrintList("SNR1", vol(v, sample_size, "SNR1",fname_outdir), v, ol, 13)
+        self.addToPrintList("SNR2", vol(v, sample_size, "SNR2",fname_outdir), v, ol, 14)
+        self.addToPrintList("SNR3", vol(v, sample_size, "SNR3",fname_outdir), v, ol, 15)
+        self.addToPrintList("SNR4", vol(v, sample_size, "SNR4",fname_outdir), v, ol, 16)
+        self.addToPrintList("CNR", vol(v, sample_size, "CNR",fname_outdir), v, ol, 17)
+        self.addToPrintList("CVP", vol(v, sample_size, "CVP",fname_outdir), v, ol, 18)
+        self.addToPrintList("CJV", vol(v, sample_size, "CJV",fname_outdir), v, ol, 19)
+        self.addToPrintList("EFC", vol(v, sample_size, "EFC",fname_outdir), v, ol, 20)
+        self.addToPrintList("FBER", vol(v, sample_size, "FBER",fname_outdir), v, ol, 21)
         
     def addToPrintList(self, name, val, v, ol, il):
         self[name] = val
         self["output"].append(name)
         if name != 'Name of Images' and il != 170:
-            logging.debug('%s-%s. The %s of the patient with the name of <%s> is %s' % (ol,il,name, v[1], val))
+            print('%s-%s. The %s of the patient with the name of <%s> is %s' % (ol,il,name, v[1], val))
 
-def vol(v, sample_size, i):
+
+
+
+class BaseVolume_mat(dict):
+
+    def __init__(self, fname_outdir, v, ol,folder_foregrounds, sample_size):
+        dict.__init__(self)
+
+        self["warnings"] = [] 
+        self["output"] = []
+        self.addToPrintList("Patient", v[1]['ID'], v, ol, 170)
+        self["outdir"] = fname_outdir
+        self.addToPrintList("Name of Images", os.listdir(fname_outdir + os.sep + v[1]['ID']), v, ol, 100)
+        self.addToPrintList("ROWS", np.shape(v[0])[0], v, ol, 1)
+        self.addToPrintList("COLS", np.shape(v[0])[1], v, ol, 2)
+        self["os_handle"] = v[0]
+        self.addToPrintList("NUM", np.shape(v[0])[2], v, ol, 3)
+        self.addToPrintList("MEAN", vol(v, sample_size, "Mean",folder_foregrounds), v, ol, 4)
+        self.addToPrintList("RNG", vol(v, sample_size, "Range",folder_foregrounds), v, ol, 5)
+        self.addToPrintList("VAR", vol(v, sample_size, "Variance",folder_foregrounds), v, ol, 6)
+        self.addToPrintList("CV", vol(v, sample_size, "CV",folder_foregrounds), v, ol, 7)
+        self.addToPrintList("CPP", vol(v, sample_size, "CPP",folder_foregrounds), v, ol, 8)
+        self.addToPrintList("PSNR", vol(v, sample_size, "PSNR",folder_foregrounds), v, ol, 9)
+        self.addToPrintList("SNR1", vol(v, sample_size, "SNR1",folder_foregrounds), v, ol, 10)
+        self.addToPrintList("SNR2", vol(v, sample_size, "SNR2",folder_foregrounds), v, ol, 11)
+        self.addToPrintList("SNR3", vol(v, sample_size, "SNR3",folder_foregrounds), v, ol, 12)
+        self.addToPrintList("SNR4", vol(v, sample_size, "SNR4",folder_foregrounds), v, ol, 13)
+        self.addToPrintList("CNR", vol(v, sample_size, "CNR",folder_foregrounds), v, ol, 14)
+        self.addToPrintList("CVP", vol(v, sample_size, "CVP",folder_foregrounds), v, ol, 15)
+        self.addToPrintList("CJV", vol(v, sample_size, "CJV",folder_foregrounds), v, ol, 16)
+        self.addToPrintList("EFC", vol(v, sample_size, "EFC",folder_foregrounds), v, ol, 17)
+        self.addToPrintList("FBER", vol(v, sample_size, "FBER",folder_foregrounds), v, ol, 18)
+        
+    def addToPrintList(self, name, val, v, ol, il):
+        self[name] = val
+        self["output"].append(name)
+        if name != 'Name of Images' and il != 170:
+            print('%s-%s. The %s of the patient with the name of <%s> is %s' % (ol,il,name, v[1]['ID'], val))
+
+
+
+
+def vol(v, sample_size, kk,outi_folder, ch_flag):
     switcher={
             'Mean': mean,
             'Range': rang,
@@ -122,12 +167,12 @@ def vol(v, sample_size, i):
             'EFC': efc,
             'FBER': fber,
             }
-    func=switcher.get(i)
+    func=switcher.get(kk)
     M = []
     for i in range(1, len(v[0]), sample_size):
         I = v[0][i]
 #        I = I - np.min(I)  # for CT 
-        F, B, c, f, b = foreground(I)
+        F, B, c, f, b = foreground(I,outi_folder,v,i, ch_flag)
         if np.std(F) == 0:  # whole zero slice, no measure computing
             continue
         measure = func(F, B, c, f, b)
@@ -139,7 +184,7 @@ def vol(v, sample_size, i):
     return np.mean(M)
        
 
-def foreground(img):
+def foreground(img,save_folder,v,inumber, ch_flag):
     try:
         h = ex.equalize_hist(img[:,:])*255
         oi = np.zeros_like(img, dtype=np.uint16)
@@ -151,7 +196,11 @@ def foreground(img):
         w2 = np.sum(oh)/(nm)
         ots = np.zeros_like(img, dtype=np.uint16)
         new =( w1 * img) + (w2 * h)
-        ots[(new > threshold_otsu(new)) == True] = 1
+        ots[(new > threshold_otsu(new)) == True] = 1 
+        if ch_flag == 'True':
+            conv_hull = convex_hull_object(ots)
+        elif ch_flag == 'False':
+            conv_hull = convex_hull_image(ots)
         conv_hull = convex_hull_image(ots)
         ch = np.multiply(conv_hull, 1)
         fore_image = ch * img
@@ -160,6 +209,11 @@ def foreground(img):
         fore_image = img.copy()
         back_image = np.zeros_like(img, dtype=np.uint16)
         conv_hull = np.zeros_like(img, dtype=np.uint16)
+        ch = np.multiply(conv_hull, 1)
+    
+    # if not os.path.isdir(save_folder + os.sep + v[1]['ID']):
+    if '_foreground_masks' in save_folder + os.sep + v[1]['ID']:
+        plt.imsave(save_folder + os.sep + v[1]['ID'] +'(%d).png' % int(inumber+1), scipy.ndimage.rotate(ch,0), cmap = cm.Greys_r)
     return fore_image, back_image, conv_hull, img[conv_hull], img[conv_hull==False]
 
 def mean(F, B, c, f, b):
