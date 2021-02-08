@@ -1,21 +1,20 @@
 [[source]]
-name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-
-[dev-packages]
+name = "pypi"
 
 [packages]
 numpy = "*"
-pydicom = "*"
+argparse = "*"
+datetime = "*"
 medpy = "*"
-scipy = "*"
-pytest = "*"
-scikit-learn = "*"
-umap-learn = "*"
-scikit-image = "*"
+matplotlib = "*"
+pydicom = "*"
 pandas = "*"
-mrqy = {path = "."}
+scipy = "*"
+sklearn = "*"
+
+[dev-packages]
 
 [requires]
-python_version = "3.6"
+python_version = "3.8"
