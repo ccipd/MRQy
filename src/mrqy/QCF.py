@@ -1,7 +1,14 @@
+# -*- coding: utf-8 -*-
 """
-Created on Sun Feb 10 11:21:31 2019, Last update on Sun Nov 22 23:14:24 2020
+Created on Sun Nov 22 16:45:32 2020
 
-@author: Amir Reza Sadri ars329@case.edu
+@author: Amir Reza Sadri
+"""
+
+"""
+Created on Sun Feb 10 11:21:31 2019, Last update on Mon Feb 08 08:24:05 2021
+
+@author: Amir Reza Sadri
 """
 
 import os
@@ -70,7 +77,7 @@ class BaseVolume_dicom(dict):
 
 class BaseVolume_nondicom(dict):
 
-    def __init__(self, fname_outdir, v, ol, sample_size):
+    def __init__(self, fname_outdir, v, ol, sample_size, ch_flag):
         dict.__init__(self)
 
         self["warnings"] = [] 
@@ -85,29 +92,27 @@ class BaseVolume_nondicom(dict):
         self.addToPrintList("COLS", np.shape(v[0])[2], v, ol, 5)
         self["os_handle"] = v[0]
         self.addToPrintList("NUM", len(v[0]), v, ol, 6)
-        self.addToPrintList("MEAN", vol(v, sample_size, "Mean",fname_outdir), v, ol, 7)
-        self.addToPrintList("RNG", vol(v, sample_size, "Range",fname_outdir), v, ol, 8)
-        self.addToPrintList("VAR", vol(v, sample_size, "Variance",fname_outdir), v, ol, 9)
-        self.addToPrintList("CV", vol(v, sample_size, "CV",fname_outdir), v, ol, 10)
-        self.addToPrintList("CPP", vol(v, sample_size, "CPP",fname_outdir), v, ol, 11)
-        self.addToPrintList("PSNR", vol(v, sample_size, "PSNR",fname_outdir), v, ol, 12)
-        self.addToPrintList("SNR1", vol(v, sample_size, "SNR1",fname_outdir), v, ol, 13)
-        self.addToPrintList("SNR2", vol(v, sample_size, "SNR2",fname_outdir), v, ol, 14)
-        self.addToPrintList("SNR3", vol(v, sample_size, "SNR3",fname_outdir), v, ol, 15)
-        self.addToPrintList("SNR4", vol(v, sample_size, "SNR4",fname_outdir), v, ol, 16)
-        self.addToPrintList("CNR", vol(v, sample_size, "CNR",fname_outdir), v, ol, 17)
-        self.addToPrintList("CVP", vol(v, sample_size, "CVP",fname_outdir), v, ol, 18)
-        self.addToPrintList("CJV", vol(v, sample_size, "CJV",fname_outdir), v, ol, 19)
-        self.addToPrintList("EFC", vol(v, sample_size, "EFC",fname_outdir), v, ol, 20)
-        self.addToPrintList("FBER", vol(v, sample_size, "FBER",fname_outdir), v, ol, 21)
+        self.addToPrintList("MEAN", vol(v, sample_size, "Mean",fname_outdir, ch_flag), v, ol, 7)
+        self.addToPrintList("RNG", vol(v, sample_size, "Range",fname_outdir, ch_flag), v, ol, 8)
+        self.addToPrintList("VAR", vol(v, sample_size, "Variance",fname_outdir, ch_flag), v, ol, 9)
+        self.addToPrintList("CV", vol(v, sample_size, "CV",fname_outdir, ch_flag), v, ol, 10)
+        self.addToPrintList("CPP", vol(v, sample_size, "CPP",fname_outdir, ch_flag), v, ol, 11)
+        self.addToPrintList("PSNR", vol(v, sample_size, "PSNR",fname_outdir, ch_flag), v, ol, 12)
+        self.addToPrintList("SNR1", vol(v, sample_size, "SNR1",fname_outdir, ch_flag), v, ol, 13)
+        self.addToPrintList("SNR2", vol(v, sample_size, "SNR2",fname_outdir, ch_flag), v, ol, 14)
+        self.addToPrintList("SNR3", vol(v, sample_size, "SNR3",fname_outdir, ch_flag), v, ol, 15)
+        self.addToPrintList("SNR4", vol(v, sample_size, "SNR4",fname_outdir, ch_flag), v, ol, 16)
+        self.addToPrintList("CNR", vol(v, sample_size, "CNR",fname_outdir, ch_flag), v, ol, 17)
+        self.addToPrintList("CVP", vol(v, sample_size, "CVP",fname_outdir, ch_flag), v, ol, 18)
+        self.addToPrintList("CJV", vol(v, sample_size, "CJV",fname_outdir, ch_flag), v, ol, 19)
+        self.addToPrintList("EFC", vol(v, sample_size, "EFC",fname_outdir, ch_flag), v, ol, 20)
+        self.addToPrintList("FBER", vol(v, sample_size, "FBER",fname_outdir, ch_flag), v, ol, 21)
         
     def addToPrintList(self, name, val, v, ol, il):
         self[name] = val
         self["output"].append(name)
         if name != 'Name of Images' and il != 170:
             print('%s-%s. The %s of the patient with the name of <%s> is %s' % (ol,il,name, v[1], val))
-
-
 
 
 class BaseVolume_mat(dict):
@@ -146,10 +151,7 @@ class BaseVolume_mat(dict):
         if name != 'Name of Images' and il != 170:
             print('%s-%s. The %s of the patient with the name of <%s> is %s' % (ol,il,name, v[1]['ID'], val))
 
-
-
-
-def vol(v, sample_size, kk,outi_folder, ch_flag):
+def vol(v, sample_size, kk, outi_folder, ch_flag):
     switcher={
             'Mean': mean,
             'Range': rang,
@@ -172,7 +174,7 @@ def vol(v, sample_size, kk,outi_folder, ch_flag):
     for i in range(1, len(v[0]), sample_size):
         I = v[0][i]
 #        I = I - np.min(I)  # for CT 
-        F, B, c, f, b = foreground(I,outi_folder,v,i, ch_flag)
+        F, B, c, f, b = foreground(I,outi_folder,v,i)
         if np.std(F) == 0:  # whole zero slice, no measure computing
             continue
         measure = func(F, B, c, f, b)
@@ -184,7 +186,8 @@ def vol(v, sample_size, kk,outi_folder, ch_flag):
     return np.mean(M)
        
 
-def foreground(img,save_folder,v,inumber, ch_flag):
+
+def foreground(img,save_folder,v,inumber):
     try:
         h = ex.equalize_hist(img[:,:])*255
         oi = np.zeros_like(img, dtype=np.uint16)
@@ -197,10 +200,7 @@ def foreground(img,save_folder,v,inumber, ch_flag):
         ots = np.zeros_like(img, dtype=np.uint16)
         new =( w1 * img) + (w2 * h)
         ots[(new > threshold_otsu(new)) == True] = 1 
-        if ch_flag == 'True':
-            conv_hull = convex_hull_object(ots)
-        elif ch_flag == 'False':
-            conv_hull = convex_hull_image(ots)
+        conv_hull = convex_hull_image(ots)
         conv_hull = convex_hull_image(ots)
         ch = np.multiply(conv_hull, 1)
         fore_image = ch * img
@@ -212,9 +212,76 @@ def foreground(img,save_folder,v,inumber, ch_flag):
         ch = np.multiply(conv_hull, 1)
     
     # if not os.path.isdir(save_folder + os.sep + v[1]['ID']):
-    if '_foreground_masks' in save_folder + os.sep + v[1]['ID']:
-        plt.imsave(save_folder + os.sep + v[1]['ID'] +'(%d).png' % int(inumber+1), scipy.ndimage.rotate(ch,0), cmap = cm.Greys_r)
     return fore_image, back_image, conv_hull, img[conv_hull], img[conv_hull==False]
+
+
+
+# def vol(v, sample_size, kk,outi_folder, ch_flag):
+#     switcher={
+#             'Mean': mean,
+#             'Range': rang,
+#             'Variance': variance, 
+#             'CV': percent_coefficient_variation,
+#             'CPP': contrast_per_pixle,
+#             'PSNR': fpsnr,
+#             'SNR1': snr1,
+#             'SNR2': snr2,
+#             'SNR3': snr3,
+#             'SNR4': snr4,
+#             'CNR': cnr,
+#             'CVP': cvp,
+#             'CJV': cjv,
+#             'EFC': efc,
+#             'FBER': fber,
+#             }
+#     func=switcher.get(kk)
+#     M = []
+#     for i in range(1, len(v[0]), sample_size):
+#         I = v[0][i]
+# #        I = I - np.min(I)  # for CT 
+#         F, B, c, f, b = foreground(I,outi_folder,v,i, ch_flag)
+#         if np.std(F) == 0:  # whole zero slice, no measure computing
+#             continue
+#         measure = func(F, B, c, f, b)
+#         if np.isnan(measure) or np.isinf(measure):
+#             continue
+#             # measure = 0
+#         # To do (add something)
+#         M.append(measure)
+#     return np.mean(M)
+       
+
+# def foreground(img,save_folder,v,inumber, ch_flag):
+#     try:
+#         h = ex.equalize_hist(img[:,:])*255
+#         oi = np.zeros_like(img, dtype=np.uint16)
+#         oi[(img > threshold_otsu(img)) == True] = 1
+#         oh = np.zeros_like(img, dtype=np.uint16)
+#         oh[(h > threshold_otsu(h)) == True] = 1
+#         nm = img.shape[0] * img.shape[1]
+#         w1 = np.sum(oi)/(nm)
+#         w2 = np.sum(oh)/(nm)
+#         ots = np.zeros_like(img, dtype=np.uint16)
+#         new =( w1 * img) + (w2 * h)
+#         ots[(new > threshold_otsu(new)) == True] = 1 
+#         if ch_flag == 'True':
+#             conv_hull = convex_hull_object(ots)
+#         elif ch_flag == 'False':
+#             conv_hull = convex_hull_image(ots)
+#         conv_hull = convex_hull_image(ots)
+#         ch = np.multiply(conv_hull, 1)
+#         fore_image = ch * img
+#         back_image = (1 - ch) * img
+#     except Exception: 
+#         fore_image = img.copy()
+#         back_image = np.zeros_like(img, dtype=np.uint16)
+#         conv_hull = np.zeros_like(img, dtype=np.uint16)
+#         ch = np.multiply(conv_hull, 1)
+    
+#     # if not os.path.isdir(save_folder + os.sep + v[1]['ID']):
+#     if '_foreground_masks' in save_folder + os.sep + v[1]['ID']:
+#         plt.imsave(save_folder + os.sep + v[1]['ID'] +'(%d).png' % int(inumber+1), scipy.ndimage.rotate(ch,0), cmap = cm.Greys_r)
+#     return fore_image, back_image, conv_hull, img[conv_hull], img[conv_hull==False]
 
 def mean(F, B, c, f, b):
     return np.nanmean(f)
