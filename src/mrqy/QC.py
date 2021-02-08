@@ -1,5 +1,5 @@
 """
-Created on Sun Feb 10 11:21:31 2019, Last update on Sun Nov 22 23:14:24 2020
+Created on Sun Feb 10 11:21:31 2019, Last update on Mon Feb 08 08:23:24 2021
 
 @author: Amir Reza Sadri ars329@case.edu
 """
@@ -349,7 +349,7 @@ if __name__ == '__main__':
             for l,k in enumerate(nondicom_spli):
                 v = volume_notdicom(k, nondicom_names[l])
                 saveThumbnails_nondicom(v,fname_outdir)
-                s = QCF.BaseVolume_nondicom(fname_outdir, v,l+1)
+                s = QCF.BaseVolume_nondicom(fname_outdir, v,l+1, sample_size, ch_flag)
                 worker_callback(s,fname_outdir)
             nondicom_flag = False
         
