@@ -1,0 +1,11 @@
+argparse
+datetime
+medpy
+pydicom  
+pandas
+sklearn
+umap-learn
+numpy
+scipy
+matplotlib
+
