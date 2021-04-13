@@ -8,4 +8,3 @@ umap-learn
 numpy
 scipy
 matplotlib
-
