@@ -1,5 +1,5 @@
 """
-Created on Sun Feb 10 11:21:31 2019, Last update on Mon Feb 08 08:23:24 2021
+Created on Sun Feb 10 11:21:31 2019, Last update on Tue April 13 06:52:24 2021
 
 @author: Amir Reza Sadri ars329@case.edu
 """
@@ -18,7 +18,8 @@ from itertools import accumulate
 import pandas as pd
 from scipy.cluster.vq import whiten
 from sklearn.manifold import TSNE
-import umap
+# import umap
+import umap.umap_ as umap
 import scipy
 from scipy.io import loadmat
 import warnings        
@@ -298,8 +299,11 @@ if __name__ == '__main__':
     else: 
         ch_flag = args.c 
     
+    # print(os.getcwd())
+    # print_forlder_note = os.getcwd() + os.sep + 'UserInterface' 
+    print_forlder_note = os.path.abspath(os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), os.pardir))+ os.sep + 'UserInterface' 
     
-    print_forlder_note = os.getcwd() + os.sep + 'UserInterface' 
+    # print(print_forlder_note)
     fname_outdir = print_forlder_note + os.sep + 'Data' + os.sep + args.output_folder_name
     overwrite_flag = "w"        
     headers.append(f"outdir:\t{os.path.realpath(fname_outdir)}") 
@@ -378,5 +382,4 @@ if __name__ == '__main__':
     "Click on 'View Results' and select '{}' file.\n".format(fname_outdir + os.sep + "results.tsv") 
           
     print_msg_box(msg, indent=3, width=None, title="To view the final MRQy interface results:")
-    
     
