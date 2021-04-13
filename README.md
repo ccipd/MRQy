@@ -42,6 +42,10 @@ You must have [pipenv](https://pipenv-fork.readthedocs.io/en/latest/basics.html)
 
 ![Picture7](https://user-images.githubusercontent.com/50635618/76580525-a2638000-64a6-11ea-8a37-38e95c4693c3.png)
 
+You can also likely install the python requirements using something like:
+
+pip3 install -r requirements.txt
+
 ## Running
 
 For local development, test that the code is functional
