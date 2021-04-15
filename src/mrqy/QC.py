@@ -300,8 +300,8 @@ if __name__ == '__main__':
         ch_flag = args.c 
     
     # print(os.getcwd())
-    # print_forlder_note = os.getcwd() + os.sep + 'UserInterface' 
-    print_forlder_note = os.path.abspath(os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), os.pardir))+ os.sep + 'UserInterface' 
+    print_forlder_note = os.getcwd() + os.sep + 'UserInterface' 
+    # print_forlder_note = os.path.abspath(os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), os.pardir))+ os.sep + 'UserInterface' 
     
     # print(print_forlder_note)
     fname_outdir = print_forlder_note + os.sep + 'Data' + os.sep + args.output_folder_name
