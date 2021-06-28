@@ -13,6 +13,8 @@ pydicom = "*"
 pandas = "*"
 scipy = "*"
 sklearn = "*"
+scikit-image = "*"
+umap-learn = "*'
 
 [dev-packages]
 
