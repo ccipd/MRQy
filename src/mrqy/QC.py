@@ -1,14 +1,14 @@
 """
-Created on Sun Feb 10 11:21:31 2019, Last update on Tue April 13 06:52:24 2021
+Created on Sun Feb 10 11:21:31 2019, Last update on Tue July 13 04:56:24 2021
 
 @author: Amir Reza Sadri ars329@case.edu
 """
-
+import sys
 import os
 import numpy as np
 import argparse
 import datetime
-import mrqy.QCF as QCF ## import QCF
+import QCF
 import time
 from medpy.io import load    # for .mha, .nii, or .nii.gz files
 import matplotlib.pyplot as plt
@@ -78,6 +78,9 @@ def patient_name(root):
 
     
     subjects = subjects_id + mhas_subjects + mat_subjects
+    if len(subjects) < 6:
+        print('Insufficient data. The UMAP and t-SNE process need at least 6 input data.')
+        sys.exit()
     print('The number of patients is {}'.format(len(subjects)))
     return files, subjects, splits, mhas, mhas_subjects, mats, mat_subjects
 
@@ -305,6 +308,7 @@ if __name__ == '__main__':
     
     # print(print_forlder_note)
     fname_outdir = print_forlder_note + os.sep + 'Data' + os.sep + args.output_folder_name
+    
     overwrite_flag = "w"        
     headers.append(f"outdir:\t{os.path.realpath(fname_outdir)}") 
     patients, names, dicom_spil, nondicom_spli, nondicom_names, mat_spli, mat_names = patient_name(root)
@@ -382,4 +386,5 @@ if __name__ == '__main__':
     "Click on 'View Results' and select '{}' file.\n".format(fname_outdir + os.sep + "results.tsv") 
           
     print_msg_box(msg, indent=3, width=None, title="To view the final MRQy interface results:")
+    
     
