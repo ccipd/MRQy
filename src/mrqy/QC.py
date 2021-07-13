@@ -18,8 +18,10 @@ from itertools import accumulate
 import pandas as pd
 from scipy.cluster.vq import whiten
 from sklearn.manifold import TSNE
-# import umap
-import umap.umap_ as umap
+
+import umap
+# import umap.umap_ as umap
+
 import scipy
 from scipy.io import loadmat
 import warnings        
@@ -78,10 +80,10 @@ def patient_name(root):
 
     
     subjects = subjects_id + mhas_subjects + mat_subjects
+    print('The number of patients is {}'.format(len(subjects)))
     if len(subjects) < 6:
         print('Insufficient data. The UMAP and t-SNE process need at least 6 input data.')
         sys.exit()
-    print('The number of patients is {}'.format(len(subjects)))
     return files, subjects, splits, mhas, mhas_subjects, mats, mat_subjects
 
 
