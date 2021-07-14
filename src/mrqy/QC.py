@@ -1,5 +1,5 @@
 """
-Created on Sun Feb 10 11:21:31 2019, Last update on Tue July 13 04:56:24 2021
+Created on Sun Feb 10 11:21:31 2019, Last update on Tue July 13 10:42:18 PM 2021
 
 @author: Amir Reza Sadri ars329@case.edu
 """
@@ -81,9 +81,6 @@ def patient_name(root):
     
     subjects = subjects_id + mhas_subjects + mat_subjects
     print('The number of patients is {}'.format(len(subjects)))
-    if len(subjects) < 6:
-        print('Insufficient data. The UMAP and t-SNE process need at least 6 input data.')
-        sys.exit()
     return files, subjects, splits, mhas, mhas_subjects, mats, mat_subjects
 
 
@@ -370,13 +367,21 @@ if __name__ == '__main__':
                 s = QCF.BaseVolume_mat(fname_outdir, v,j+1,folder_foregrounds)
                 worker_callback(s,fname_outdir)
             mat_flag = False
-
+    
+    
     address = fname_outdir + os.sep + "results" + ".tsv" 
-    df = cleanup(address, 30)
-    df = df.drop(['Name of Images'], axis=1)
-    df = df.rename(columns={"#dataset:Patient": "Patient", 
-                            "x":"TSNEX","y":"TSNEY", "u":"UMAPX", "v":"UMAPY" })
-    df = df.fillna('N/A')
+            
+    if len(names) < 6:
+        print('Skipped the t-SNE and UMAP computation because of insufficient data. The UMAP and t-SNE process need at least 6 input data.')
+        df = tsv_to_dataframe(address)
+    else:
+        
+        df = cleanup(address, 30)
+        df = df.drop(['Name of Images'], axis=1)
+        df = df.rename(columns={"#dataset:Patient": "Patient", 
+                                "x":"TSNEX","y":"TSNEY", "u":"UMAPX", "v":"UMAPY" })
+        df = df.fillna('N/A')
+        
     df.to_csv(fname_outdir + os.sep +'IQM.csv',index=False)
     print("The IQMs data are saved in the {} file. ".format(fname_outdir + os.sep + "IQM.csv"))
     
