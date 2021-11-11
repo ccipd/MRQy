@@ -14,7 +14,7 @@ pandas = "*"
 scipy = "*"
 sklearn = "*"
 scikit-image = "*"
-umap-learn = "*'
+umap-learn = "*"
 
 [dev-packages]
 
