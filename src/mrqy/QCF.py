@@ -19,7 +19,7 @@ from skimage.morphology import convex_hull_image,convex_hull_object
 from skimage import exposure as ex
 from skimage.filters import median
 from skimage.morphology import square
-from skimage.util import pad
+# from skimage.util import pad   pad is not available in skimage==0.19.2
 import warnings
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -313,7 +313,8 @@ def snr1(F, B, c, f, b):
 
 def patch(img, patch_size):
     h = int(np.floor(patch_size / 2))
-    U = pad(img, pad_width=h, mode='constant')
+    # U = pad(img, pad_width=h, mode='constant')
+    U = np.pad(img, pad_width=5, mode='constant')
     [a,b]  = np.where(img == np.max(img))
     a = a[0]
     b = b[0]
