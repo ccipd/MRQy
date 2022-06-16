@@ -8,7 +8,8 @@ import os
 import numpy as np
 import argparse
 import datetime
-import QCF
+# import QCF
+import mrqy.QCF as QCF
 import time
 from medpy.io import load    # for .mha, .nii, or .nii.gz files
 import matplotlib.pyplot as plt
