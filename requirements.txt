@@ -3,7 +3,7 @@ datetime
 medpy
 pydicom  
 pandas
-sklearn
+scikit-learn
 umap-learn
 numpy
 scipy
