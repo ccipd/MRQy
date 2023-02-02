@@ -6,4 +6,3 @@ ENV PIP_ROOT_USER_ACTION=ignore
 RUN pip install -r requirements.txt
 COPY . .
 ENV PYTHONPATH "${PYTHONPATH}:/app/src"
-WORKDIR /app/src
