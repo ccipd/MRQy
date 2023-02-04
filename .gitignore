@@ -1,3 +1,6 @@
 .DS_store
 .vscode/*
 __pycache__/*
+
+env
+env_invent
