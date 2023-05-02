@@ -15,6 +15,8 @@ from medpy.io import load    # for .mha, .nii, or .nii.gz files
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import pydicom               # for .dcm files
+from pydicom.errors import InvalidDicomError
+from pydicom.tag import Tag
 from itertools import accumulate
 import pandas as pd
 from scipy.cluster.vq import whiten
@@ -55,11 +57,15 @@ def patient_name(root):
     
     if folders_flag == "False":
         for i in dicoms:
-            dicom_subjects.append(pydicom.dcmread(i).PatientID) 
-        duplicateFrequencies = {}
-        for i in dicom_subjects:
-            duplicateFrequencies[i] = dicom_subjects.count(i)
-        
+            try:
+                patient_id = pydicom.dcmread(i, specific_tags=[Tag('PatientID')]).PatientID
+            except AttributeError:
+                print(f'Skipping {i}: No PatientID tag.')
+            except InvalidDicomError as exc:
+                print(f'Skipping {i}: Invalid DICOM Error.\n{str(exc)}')
+            else:
+                dicom_subjects.append(patient_id)
+
         subjects_id = []
         subjects_number = []
         for i in range(len(duplicateFrequencies)):
