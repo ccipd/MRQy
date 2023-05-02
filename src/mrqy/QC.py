@@ -53,10 +53,10 @@ def patient_name(root):
             if i.lower().endswith('.mha')
             or i.lower().endswith('.nii')
             or i.lower().endswith('.gz')]
-    mhas_subjects = [os.path.basename(scan)[:os.path.basename(scan).index('.')] for scan in mhas]
+    mhas_subjects = [os.path.basename(scan).split('.')[0] for scan in mhas]
     dicom_subjects = []
-    mat_subjects = [os.path.basename(scan)[:os.path.basename(scan).index('.')] for scan in mats]
-    
+    mat_subjects = [os.path.basename(scan).split('.')[0] for scan in mats]
+
     if folders_flag == "False":
         for i in dicoms:
             try:
