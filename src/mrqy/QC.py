@@ -45,6 +45,7 @@ def patient_name(root):
                 or filename.lower().endswith('.nii')
                 or filename.lower().endswith('.gz')
                 or filename.lower().endswith('.mat')]
+    print(f"{len(files)=}")
     mats = [i for i in files if i.lower().endswith('.mat')]
     dicoms = [i for i in files if i.lower().endswith('.dcm')]
     mhas = [i for i in files 
