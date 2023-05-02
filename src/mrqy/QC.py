@@ -5,6 +5,7 @@ Created on Sun Feb 10 11:21:31 2019, Last update on Tue July 13 10:42:18 PM 2021
 """
 import sys
 import os
+from collections import Counter
 import numpy as np
 import argparse
 import datetime
@@ -67,11 +68,10 @@ def patient_name(root):
             else:
                 dicom_subjects.append(patient_id)
 
-        subjects_id = []
-        subjects_number = []
-        for i in range(len(duplicateFrequencies)):
-              subjects_id.append(list(duplicateFrequencies.items())[i][0])
-              subjects_number.append(list(duplicateFrequencies.items())[i][1])
+        duplicateFrequencies = Counter(dicom_subjects)
+
+        subjects_id, subjects_number = map(list, zip(duplicateFrequencies.items()))
+
         ind = [0] + list(accumulate(subjects_number))
         splits = [dicoms[ind[i]:ind[i+1]] for i in range(len(ind)-1)]
     elif folders_flag == "True":
