@@ -40,17 +40,17 @@ def patient_name(root):
     print('MRQy is starting....')
     files = [os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(root) 
                 for filename in filenames 
-                if filename.endswith('.dcm') 
-                or filename.endswith('.mha')
-                or filename.endswith('.nii')
-                or filename.endswith('.gz')
-                or filename.endswith('.mat')]
-    mats = [i for i in files if i.endswith('.mat')]
-    dicoms = [i for i in files if i.endswith('.dcm')]
+                if filename.lower().endswith('.dcm')
+                or filename.lower().endswith('.mha')
+                or filename.lower().endswith('.nii')
+                or filename.lower().endswith('.gz')
+                or filename.lower().endswith('.mat')]
+    mats = [i for i in files if i.lower().endswith('.mat')]
+    dicoms = [i for i in files if i.lower().endswith('.dcm')]
     mhas = [i for i in files 
-            if i.endswith('.mha')
-            or i.endswith('.nii')
-            or i.endswith('.gz')]
+            if i.lower().endswith('.mha')
+            or i.lower().endswith('.nii')
+            or i.lower().endswith('.gz')]
     mhas_subjects = [os.path.basename(scan)[:os.path.basename(scan).index('.')] for scan in mhas]
     dicom_subjects = []
     mat_subjects = [os.path.basename(scan)[:os.path.basename(scan).index('.')] for scan in mats]
@@ -80,7 +80,7 @@ def patient_name(root):
             subjects_number.append(
                 len([os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(root + os.sep + dicom_subjects[i]) 
             for filename in filenames 
-            if filename.endswith('.dcm')]))
+            if filename.lower().endswith('.dcm')]))
         subjects_id  = dicom_subjects
         ind = [0] + list(accumulate(subjects_number))
         splits = [dicoms[ind[i]:ind[i+1]] for i in range(len(ind)-1)]
