@@ -5,6 +5,7 @@ Created on Sun Feb 10 11:21:31 2019, Last update on Tue July 13 10:42:18 PM 2021
 """
 import sys
 import os
+from collections import Counter
 import numpy as np
 import argparse
 import datetime
@@ -15,6 +16,8 @@ from medpy.io import load    # for .mha, .nii, or .nii.gz files
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import pydicom               # for .dcm files
+from pydicom.errors import InvalidDicomError
+from pydicom.tag import Tag
 from itertools import accumulate
 import pandas as pd
 from scipy.cluster.vq import whiten
@@ -38,33 +41,37 @@ def patient_name(root):
     print('MRQy is starting....')
     files = [os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(root) 
                 for filename in filenames 
-                if filename.endswith('.dcm') 
-                or filename.endswith('.mha')
-                or filename.endswith('.nii')
-                or filename.endswith('.gz')
-                or filename.endswith('.mat')]
-    mats = [i for i in files if i.endswith('.mat')]
-    dicoms = [i for i in files if i.endswith('.dcm')]
+                if filename.lower().endswith('.dcm')
+                or filename.lower().endswith('.mha')
+                or filename.lower().endswith('.nii')
+                or filename.lower().endswith('.gz')
+                or filename.lower().endswith('.mat')]
+    print(f"{len(files)=}")
+    mats = [i for i in files if i.lower().endswith('.mat')]
+    dicoms = [i for i in files if i.lower().endswith('.dcm')]
     mhas = [i for i in files 
-            if i.endswith('.mha')
-            or i.endswith('.nii')
-            or i.endswith('.gz')]
-    mhas_subjects = [os.path.basename(scan)[:os.path.basename(scan).index('.')] for scan in mhas]
+            if i.lower().endswith('.mha')
+            or i.lower().endswith('.nii')
+            or i.lower().endswith('.gz')]
+    mhas_subjects = [os.path.basename(scan).split('.')[0] for scan in mhas]
     dicom_subjects = []
-    mat_subjects = [os.path.basename(scan)[:os.path.basename(scan).index('.')] for scan in mats]
-    
+    mat_subjects = [os.path.basename(scan).split('.')[0] for scan in mats]
+
     if folders_flag == "False":
         for i in dicoms:
-            dicom_subjects.append(pydicom.dcmread(i).PatientID) 
-        duplicateFrequencies = {}
-        for i in dicom_subjects:
-            duplicateFrequencies[i] = dicom_subjects.count(i)
-        
-        subjects_id = []
-        subjects_number = []
-        for i in range(len(duplicateFrequencies)):
-              subjects_id.append(list(duplicateFrequencies.items())[i][0])
-              subjects_number.append(list(duplicateFrequencies.items())[i][1])
+            try:
+                patient_id = pydicom.dcmread(i, specific_tags=[Tag('PatientID')]).PatientID
+            except AttributeError:
+                print(f'Skipping {i}: No PatientID tag.')
+            except InvalidDicomError as exc:
+                print(f'Skipping {i}: Invalid DICOM Error.\n{str(exc)}')
+            else:
+                dicom_subjects.append(patient_id)
+
+        duplicateFrequencies = Counter(dicom_subjects)
+
+        subjects_id, subjects_number = map(list, zip(duplicateFrequencies.items()))
+
         ind = [0] + list(accumulate(subjects_number))
         splits = [dicoms[ind[i]:ind[i+1]] for i in range(len(ind)-1)]
     elif folders_flag == "True":
@@ -74,7 +81,7 @@ def patient_name(root):
             subjects_number.append(
                 len([os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(root + os.sep + dicom_subjects[i]) 
             for filename in filenames 
-            if filename.endswith('.dcm')]))
+            if filename.lower().endswith('.dcm')]))
         subjects_id  = dicom_subjects
         ind = [0] + list(accumulate(subjects_number))
         splits = [dicoms[ind[i]:ind[i+1]] for i in range(len(ind)-1)]
