@@ -5,6 +5,7 @@ Created on Sun Feb 10 11:21:31 2019, Last update on Tue July 13 10:42:18 PM 2021
 """
 import sys
 import os
+from collections import Counter
 import numpy as np
 import argparse
 import datetime
@@ -15,6 +16,8 @@ from medpy.io import load    # for .mha, .nii, or .nii.gz files
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import pydicom               # for .dcm files
+from pydicom.errors import InvalidDicomError
+from pydicom.tag import Tag
 from itertools import accumulate
 import pandas as pd
 from scipy.cluster.vq import whiten
@@ -38,33 +41,37 @@ def patient_name(root):
     print('MRQy is starting....')
     files = [os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(root) 
                 for filename in filenames 
-                if filename.endswith('.dcm') 
-                or filename.endswith('.mha')
-                or filename.endswith('.nii')
-                or filename.endswith('.gz')
-                or filename.endswith('.mat')]
-    mats = [i for i in files if i.endswith('.mat')]
-    dicoms = [i for i in files if i.endswith('.dcm')]
+                if filename.lower().endswith('.dcm')
+                or filename.lower().endswith('.mha')
+                or filename.lower().endswith('.nii')
+                or filename.lower().endswith('.gz')
+                or filename.lower().endswith('.mat')]
+    print(f"{len(files)=}")
+    mats = [i for i in files if i.lower().endswith('.mat')]
+    dicoms = [i for i in files if i.lower().endswith('.dcm')]
     mhas = [i for i in files 
-            if i.endswith('.mha')
-            or i.endswith('.nii')
-            or i.endswith('.gz')]
-    mhas_subjects = [os.path.basename(scan)[:os.path.basename(scan).index('.')] for scan in mhas]
+            if i.lower().endswith('.mha')
+            or i.lower().endswith('.nii')
+            or i.lower().endswith('.gz')]
+    mhas_subjects = [os.path.basename(scan).split('.')[0] for scan in mhas]
     dicom_subjects = []
-    mat_subjects = [os.path.basename(scan)[:os.path.basename(scan).index('.')] for scan in mats]
-    
+    mat_subjects = [os.path.basename(scan).split('.')[0] for scan in mats]
+
     if folders_flag == "False":
         for i in dicoms:
-            dicom_subjects.append(pydicom.dcmread(i).PatientID) 
-        duplicateFrequencies = {}
-        for i in dicom_subjects:
-            duplicateFrequencies[i] = dicom_subjects.count(i)
-        
-        subjects_id = []
-        subjects_number = []
-        for i in range(len(duplicateFrequencies)):
-              subjects_id.append(list(duplicateFrequencies.items())[i][0])
-              subjects_number.append(list(duplicateFrequencies.items())[i][1])
+            try:
+                patient_id = pydicom.dcmread(i, specific_tags=[Tag('PatientID')]).PatientID
+            except AttributeError:
+                print(f'Skipping {i}: No PatientID tag.')
+            except InvalidDicomError as exc:
+                print(f'Skipping {i}: Invalid DICOM Error.\n{str(exc)}')
+            else:
+                dicom_subjects.append(patient_id)
+
+        duplicateFrequencies = Counter(dicom_subjects)
+
+        subjects_id, subjects_number = map(list, [duplicateFrequencies.keys(), duplicateFrequencies.values()])
+
         ind = [0] + list(accumulate(subjects_number))
         splits = [dicoms[ind[i]:ind[i+1]] for i in range(len(ind)-1)]
     elif folders_flag == "True":
@@ -74,7 +81,7 @@ def patient_name(root):
             subjects_number.append(
                 len([os.path.join(dirpath,filename) for dirpath, _, filenames in os.walk(root + os.sep + dicom_subjects[i]) 
             for filename in filenames 
-            if filename.endswith('.dcm')]))
+            if filename.lower().endswith('.dcm')]))
         subjects_id  = dicom_subjects
         ind = [0] + list(accumulate(subjects_number))
         splits = [dicoms[ind[i]:ind[i+1]] for i in range(len(ind)-1)]
@@ -155,10 +162,10 @@ def volume_mat(mat_scan, name):
 def saveThumbnails_dicom(v, output):
     if save_masks_flag!='False':
         ffolder = output + '_foreground_masks'
-        os.makedirs(ffolder + os.sep + v[1]['ID'])
+        os.makedirs(ffolder + os.sep + v[1]['ID'], exist_ok=True)
     elif save_masks_flag=='False':
         ffolder = output 
-    os.makedirs(output + os.sep + v[1]['ID'])
+    os.makedirs(output + os.sep + v[1]['ID'], exist_ok=True)
     for i in range(0, len(v[0]), sample_size):
         plt.imsave(output + os.sep + v[1]['ID'] + os.sep + v[1]['ID'] + '(%d).png' % i, v[0][i], cmap = cm.Greys_r)
     print('The number of %d images are saved to %s' % (len(v[0]),output + os.sep + v[1]['ID']))
@@ -167,10 +174,10 @@ def saveThumbnails_dicom(v, output):
 def saveThumbnails_mat(v, output):
     if save_masks_flag!='False':
         ffolder = output + '_foreground_masks'
-        os.makedirs(ffolder + os.sep + v[1]['ID'])
+        os.makedirs(ffolder + os.sep + v[1]['ID'], exist_ok=True)
     elif save_masks_flag=='False':
         ffolder = output 
-    os.makedirs(output + os.sep + v[1]['ID'])
+    os.makedirs(output + os.sep + v[1]['ID'], exist_ok=True)
     for i in range(np.shape(v[0])[2]):
         plt.imsave(output + os.sep + v[1]['ID']+ os.sep + v[1]['ID'] + '(%d).png' % int(i+1), v[0][:,:,i], cmap = cm.Greys_r)
     print('The number of %d images are saved to %s' % (np.shape(v[0])[2],output + os.sep + v[1]['ID']))
@@ -178,7 +185,7 @@ def saveThumbnails_mat(v, output):
 
 
 def saveThumbnails_nondicom(v, output):
-    os.makedirs(output + os.sep + v[1])
+    os.makedirs(output + os.sep + v[1], exist_ok=True)
     for i in range(len(v[0])):
         plt.imsave(output + os.sep + v[1] + os.sep + v[1] + '(%d).png' % int(i+1), scipy.ndimage.rotate(v[0][i],270), cmap = cm.Greys_r)
         # print('image number %d out of %d is saved to %s' % (int(i+1), len(v[0]),output + os.sep + v[1]))
@@ -303,11 +310,12 @@ if __name__ == '__main__':
         ch_flag = args.c 
     
     # print(os.getcwd())
-    print_forlder_note = os.getcwd() + os.sep + 'UserInterface' 
+    output_base_path = args.output_folder_name or os.getcwd()
+    output_user_interface_path = output_base_path + os.sep + 'UserInterface'
     # print_forlder_note = os.path.abspath(os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), os.pardir))+ os.sep + 'UserInterface' 
     
     # print(print_forlder_note)
-    fname_outdir = print_forlder_note + os.sep + 'Data' + os.sep + args.output_folder_name
+    fname_outdir = output_user_interface_path + os.sep + 'Data'
     
     overwrite_flag = "w"        
     headers.append(f"outdir:\t{os.path.realpath(fname_outdir)}") 
@@ -377,7 +385,7 @@ if __name__ == '__main__':
         df = tsv_to_dataframe(address)
     else:
         
-        df = cleanup(address, 30)
+        df = cleanup(address, min(len(names) - 1, 30))
         df = df.drop(['Name of Images'], axis=1)
         df = df.rename(columns={"#dataset:Patient": "Patient", 
                                 "x":"TSNEX","y":"TSNEY", "u":"UMAPX", "v":"UMAPY" })
@@ -385,12 +393,12 @@ if __name__ == '__main__':
         
     df.to_csv(fname_outdir + os.sep +'IQM.csv',index=False)
     print("The IQMs data are saved in the {} file. ".format(fname_outdir + os.sep + "IQM.csv"))
-    
+
     print("Done!")
     print("MRQy program took", format((time.time() - start_time)/60, '.2f'), \
           "minutes for {} subjects and the overal {} MRI slices to run.".format(len(names),len(patients)))
     
-    msg = "Please go to the '{}' directory and open up the 'index.html' file.\n".format(print_forlder_note) + \
+    msg = "Please go to the '{}' directory and open up the 'index.html' file.\n".format(output_user_interface_path) + \
     "Click on 'View Results' and select '{}' file.\n".format(fname_outdir + os.sep + "results.tsv") 
           
     print_msg_box(msg, indent=3, width=None, title="To view the final MRQy interface results:")
