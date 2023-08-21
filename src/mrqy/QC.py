@@ -143,8 +143,7 @@ def volume_dicom(scans, name):
     slices.sort(key = lambda x: int(x.InstanceNumber))
     # PL = pd.DataFrame([s.pixel_array for s in slices], columns=['images'])
     # images = PL['images'].to_numpy().astype(np.int64)
-    images = np.stack([s.pixel_array for s in slices])
-    images = images.astype(np.int64)
+    images = [s.pixel_array.astype(np.int64) for s in slices]
     return images, tags
 
 def volume_notdicom(scan, name):

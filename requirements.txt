@@ -7,3 +7,5 @@ numpy
 scipy
 matplotlib
 scikit-image
+python-gdcm
+pylibjpeg
