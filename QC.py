@@ -365,7 +365,7 @@ def data_whitening(dframe):
     return df
 
 
-def cleanup(final_address, per):
+def cleanup(final_address):
     df = pd.read_csv(final_address, sep='\t', skiprows=2, header=0)
     hf = pd.read_csv(final_address, sep='\t',  nrows=1)
     hf.to_csv(final_address, index = None, header=True, sep = '\t', mode = 'w')
@@ -465,7 +465,7 @@ if __name__ == '__main__':
     address = fname_outdir + os.sep + "results" + ".tsv" 
             
         
-    df = cleanup(address, 30)
+    df = cleanup(address)
     df = df.drop(['Name of Images'], axis=1)
     df = df.fillna('N/A')
         
