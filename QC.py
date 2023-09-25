@@ -2,7 +2,7 @@
 """
 Created on Fri Apr  7 11:24:51 2023
 
-By: Amir R. Sadri (amir@picturehealth.com)
+By: Amir R. Sadri (ars329@case.edu)
 """
 
 
