@@ -18,7 +18,7 @@ from itertools import accumulate
 import pandas as pd
 from scipy.cluster.vq import whiten
 from sklearn.manifold import TSNE
-import umap                             # import umap.umap_ as umap
+import umap
 import scipy
 from scipy.io import loadmat
 import warnings        
@@ -135,10 +135,8 @@ def volume_dicom(scans, name):
              'MFS': inf.MagneticFieldStrength,                  # Magnetic fiels strength from the file header
              'ROWS': int(inf.Rows),                             # Rows value of the volume
              'COLS': int(inf.Columns),                          # Columns value of the volume
-             # 'TR': format(inf.RepetitionTime, '.2f'),
-             'TR': inf.RepetitionTime,                          # Repetition time value of the volume
-             # 'TE': format(inf.EchoTime, '.2f'),
-             'TE': inf.EchoTime,                                # Echo time value of the volume
+             'TR': format(inf.RepetitionTime, '.2f'),           # Repetition time value of the volume
+             'TE': format(inf.EchoTime, '.2f'),                 # Echo time value of the volume
              'NUM': len(scans)                                  # Number of slice images in each volume
     }
     
@@ -278,7 +276,7 @@ def tsne_umap(dataframe, per):
     # Create a copy of the transformed dataframe for UMAP
     ds_umap = ds.copy()
     # Perform t-SNE on the transformed dataset
-    tsne = TSNE(n_components=2, random_state=0, perplexity = per)
+    tsne = TSNE(n_components=2, random_state=0, perplexity = per)   # per : must be less than n subjects. default = 30. Usually between 5 and 50
     tsne_obj = tsne.fit_transform(ds)
     # Add t-SNE components to the original DataFrame as 'x' and 'y'
     dataframe['x'] = tsne_obj[:,0].astype(float)

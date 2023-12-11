@@ -19,11 +19,12 @@ from skimage.morphology import convex_hull_image,convex_hull_object
 from skimage import exposure as ex
 from skimage.filters import median
 from skimage.morphology import square
-# from skimage.util import pad   pad is not available in skimage==0.19.2
+# from skimage.util import pad          pad is not available in skimage==0.19.2
 import warnings
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import scipy
+import cv2
 
 warnings.filterwarnings("ignore")
 
@@ -49,17 +50,17 @@ class BaseVolume_dicom(dict):
         
         # Set dictionary keys with corresponding values for various calculations
         
-        # self.addToPrintList("MFR", v[1]['Manufacturer'], v, ol, 1)
-        # self.addToPrintList("MFS", v[1]['MFS'], v, ol, 2)
-        # self.addToPrintList("VRX", v[1]['VR_x'], v, ol, 3)
-        # self.addToPrintList("VRY", v[1]['VR_y'], v, ol, 4)
-        # self.addToPrintList("VRZ", v[1]['VR_z'], v, ol, 5)
-        # self.addToPrintList("ROWS", v[1]['Rows'], v, ol, 6)
-        # self.addToPrintList("COLS", v[1]['Columns'], v, ol, 7)
-        # self.addToPrintList("TR", v[1]['TR'], v, ol, 8)
-        # self.addToPrintList("TE", v[1]['TE'], v, ol, 9)
+        self.addToPrintList("MFR", v[1]['Manufacturer'], v, ol, 1)
+        self.addToPrintList("MFS", v[1]['MFS'], v, ol, 2)
+        self.addToPrintList("VRX", v[1]['VR_x'], v, ol, 3)
+        self.addToPrintList("VRY", v[1]['VR_y'], v, ol, 4)
+        self.addToPrintList("VRZ", v[1]['VR_z'], v, ol, 5)
+        self.addToPrintList("ROWS", v[1]['Rows'], v, ol, 6)
+        self.addToPrintList("COLS", v[1]['Columns'], v, ol, 7)
+        self.addToPrintList("TR", v[1]['TR'], v, ol, 8)
+        self.addToPrintList("TE", v[1]['TE'], v, ol, 9)
         self["os_handle"] = v[0]
-        # self.addToPrintList("NUM", v[1]['Number'], v, ol, 10)
+        self.addToPrintList("NUM", v[1]['Number'], v, ol, 10)
         self.addToPrintList("MEAN", vol(v, sample_size, "Mean",folder_foregrounds, ch_flag), v, ol, 11)
         self.addToPrintList("RNG", vol(v, sample_size, "Range",folder_foregrounds, ch_flag), v, ol, 12)
         self.addToPrintList("VAR", vol(v, sample_size, "Variance",folder_foregrounds, ch_flag), v, ol, 13)
@@ -237,6 +238,11 @@ def foreground(img,save_folder,v,inumber):
         ots[(new > threshold_otsu(new)) == True] = 1 
         # Obtain convex hull of the thresholded image
         conv_hull = convex_hull_image(ots)
+        #    # Create a green line in-between the foreground and the background
+        #    contour, _ = cv2.findContours(np.array(conv_hull, dtype = np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        #    border_points = contour[0][:, 0, :]
+        #    for point in border_points:
+        #        img[point[1], point[0]] = [0, 255, 0]   # Green colour
         # Calculate the foreground and background images based on the convex hull
         ch = np.multiply(conv_hull, 1)
         fore_image = ch * img
