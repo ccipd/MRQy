@@ -238,11 +238,13 @@ def foreground(img,save_folder,v,inumber):
         ots[(new > threshold_otsu(new)) == True] = 1 
         # Obtain convex hull of the thresholded image
         conv_hull = convex_hull_image(ots)
-        #    # Create a green line in-between the foreground and the background
-        #    contour, _ = cv2.findContours(np.array(conv_hull, dtype = np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        #    border_points = contour[0][:, 0, :]
-        #    for point in border_points:
-        #        img[point[1], point[0]] = [0, 255, 0]   # Green colour
+        
+        # Create a green line in-between the foreground and the background
+        contour, _ = cv2.findContours(np.array(conv_hull, dtype = np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        border_points = contour[0][:, 0, :]
+        for point in border_points:
+            img[point[1], point[0]] = [0, 255, 0]   # Green colour
+            
         # Calculate the foreground and background images based on the convex hull
         ch = np.multiply(conv_hull, 1)
         fore_image = ch * img
