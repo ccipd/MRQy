@@ -1,8 +1,3 @@
-"""
-Created on Sun Feb 10 11:21:31 2019, Last update on Tue July 13 10:42:18 PM 2021
-
-@author: Amir Reza Sadri ars329@case.edu
-"""
 import sys
 import os
 import numpy as np
@@ -253,10 +248,15 @@ def worker_callback(s,fname_outdir):
     print('The results are updated.')
     
 
+##### TESTER AVEC UN PETT ECHANTILLON DE DONNEES #####
+
 def tsv_to_dataframe(tsvfileaddress):
     # Read the CSV file into a pandas dataframe, skipping the first two rows and using the third row as headers
-    return pd.read_csv(tsvfileaddress, sep='\t', skiprows=2, header=0)
+    # To consider only the calculated measures, use only the useful columns (Column 9 to 27)
+    return pd.read_csv(tsvfileaddress, sep='\t', skiprows=2, usecols=range(8,26), header=0)
 
+#############################################################
+#############################################################
 
 def data_whitening(dframe):
     # Fill missing values with N/A in the dataframe
@@ -445,6 +445,16 @@ if __name__ == '__main__':
     
     # Create the path for the result TSV file
     address = fname_outdir + os.sep + "results" + ".tsv" 
+    
+    ###############################
+    ###############################
+    
+    # Try to create new dataframe here to perform t-SNE and UMAP
+    # Only consider the calculated measures and not the measures extracted from the dicom files
+    
+    ###############################
+    ###############################
+    
             
     if len(names) < 6:
         # t-SNE and UMPA cannot be performed if we have less than 6 images
