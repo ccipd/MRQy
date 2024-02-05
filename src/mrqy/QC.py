@@ -248,14 +248,13 @@ def worker_callback(s,fname_outdir):
     print('The results are updated.')
     
 
-##### TESTER AVEC UN PETT ECHANTILLON DE DONNEES #####
+##### TEST TSNE - UMAP sur les données calculées
 
 def tsv_to_dataframe(tsvfileaddress):
     # Read the CSV file into a pandas dataframe, skipping the first two rows and using the third row as headers
     # To consider only the calculated measures, use only the useful columns (Column 9 to 27)
-    return pd.read_csv(tsvfileaddress, sep='\t', skiprows=2, usecols=range(8,26), header=0)
+    return pd.read_csv(tsvfileaddress, sep='\t', skiprows=2, usecols=["#dataset:Patient","Name of Images", "MEAN", "RNG", "VAR", "CV", "CPP", "PSNR","SNR1", "SNR2", "SNR3", "SNR4", "CNR", "CVP", "CJV", "EFC", "FBER"], header=0)
 
-#############################################################
 #############################################################
 
 def data_whitening(dframe):
