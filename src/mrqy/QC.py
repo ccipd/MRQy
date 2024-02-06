@@ -1,8 +1,3 @@
-"""
-Created on Sun Feb 10 11:21:31 2019, Last update on Tue July 13 10:42:18 PM 2021
-
-@author: Amir Reza Sadri ars329@case.edu
-"""
 import sys
 import os
 import numpy as np
@@ -18,7 +13,7 @@ from itertools import accumulate
 import pandas as pd
 from scipy.cluster.vq import whiten
 from sklearn.manifold import TSNE
-import umap                             # import umap.umap_ as umap
+import umap
 import scipy
 from scipy.io import loadmat
 import warnings        
@@ -135,10 +130,8 @@ def volume_dicom(scans, name):
              'MFS': inf.MagneticFieldStrength,                  # Magnetic fiels strength from the file header
              'ROWS': int(inf.Rows),                             # Rows value of the volume
              'COLS': int(inf.Columns),                          # Columns value of the volume
-             # 'TR': format(inf.RepetitionTime, '.2f'),
-             'TR': inf.RepetitionTime,                          # Repetition time value of the volume
-             # 'TE': format(inf.EchoTime, '.2f'),
-             'TE': inf.EchoTime,                                # Echo time value of the volume
+             'TR': format(inf.RepetitionTime, '.2f'),           # Repetition time value of the volume
+             'TE': format(inf.EchoTime, '.2f'),                 # Echo time value of the volume
              'NUM': len(scans)                                  # Number of slice images in each volume
     }
     
@@ -255,10 +248,14 @@ def worker_callback(s,fname_outdir):
     print('The results are updated.')
     
 
+##### TEST TSNE - UMAP sur les données calculées
+
 def tsv_to_dataframe(tsvfileaddress):
     # Read the CSV file into a pandas dataframe, skipping the first two rows and using the third row as headers
-    return pd.read_csv(tsvfileaddress, sep='\t', skiprows=2, header=0)
+    # To consider only the calculated measures, use only the useful columns (Column 9 to 27)
+    return pd.read_csv(tsvfileaddress, sep='\t', skiprows=2, usecols=["#dataset:Patient","Name of Images", "MEAN", "RNG", "VAR", "CV", "CPP", "PSNR","SNR1", "SNR2", "SNR3", "SNR4", "CNR", "CVP", "CJV", "EFC", "FBER"], header=0)
 
+#############################################################
 
 def data_whitening(dframe):
     # Fill missing values with N/A in the dataframe
@@ -278,7 +275,7 @@ def tsne_umap(dataframe, per):
     # Create a copy of the transformed dataframe for UMAP
     ds_umap = ds.copy()
     # Perform t-SNE on the transformed dataset
-    tsne = TSNE(n_components=2, random_state=0, perplexity = per)
+    tsne = TSNE(n_components=2, random_state=0, perplexity = per)   # per : must be less than n subjects. default = 30. Usually between 5 and 50
     tsne_obj = tsne.fit_transform(ds)
     # Add t-SNE components to the original DataFrame as 'x' and 'y'
     dataframe['x'] = tsne_obj[:,0].astype(float)
@@ -447,6 +444,16 @@ if __name__ == '__main__':
     
     # Create the path for the result TSV file
     address = fname_outdir + os.sep + "results" + ".tsv" 
+    
+    ###############################
+    ###############################
+    
+    # Try to create new dataframe here to perform t-SNE and UMAP
+    # Only consider the calculated measures and not the measures extracted from the dicom files
+    
+    ###############################
+    ###############################
+    
             
     if len(names) < 6:
         # t-SNE and UMPA cannot be performed if we have less than 6 images

@@ -19,11 +19,12 @@ from skimage.morphology import convex_hull_image,convex_hull_object
 from skimage import exposure as ex
 from skimage.filters import median
 from skimage.morphology import square
-# from skimage.util import pad   pad is not available in skimage==0.19.2
+# from skimage.util import pad          pad is not available in skimage==0.19.2
 import warnings
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import scipy
+import cv2
 
 warnings.filterwarnings("ignore")
 
@@ -49,17 +50,17 @@ class BaseVolume_dicom(dict):
         
         # Set dictionary keys with corresponding values for various calculations
         
-        # self.addToPrintList("MFR", v[1]['Manufacturer'], v, ol, 1)
-        # self.addToPrintList("MFS", v[1]['MFS'], v, ol, 2)
-        # self.addToPrintList("VRX", v[1]['VR_x'], v, ol, 3)
-        # self.addToPrintList("VRY", v[1]['VR_y'], v, ol, 4)
-        # self.addToPrintList("VRZ", v[1]['VR_z'], v, ol, 5)
-        # self.addToPrintList("ROWS", v[1]['Rows'], v, ol, 6)
-        # self.addToPrintList("COLS", v[1]['Columns'], v, ol, 7)
-        # self.addToPrintList("TR", v[1]['TR'], v, ol, 8)
-        # self.addToPrintList("TE", v[1]['TE'], v, ol, 9)
+        self.addToPrintList("MFR", v[1]['Manufacturer'], v, ol, 1)
+        self.addToPrintList("MFS", v[1]['MFS'], v, ol, 2)
+        self.addToPrintList("VRX", v[1]['VR_x'], v, ol, 3)
+        self.addToPrintList("VRY", v[1]['VR_y'], v, ol, 4)
+        self.addToPrintList("VRZ", v[1]['VR_z'], v, ol, 5)
+        self.addToPrintList("ROWS", v[1]['Rows'], v, ol, 6)
+        self.addToPrintList("COLS", v[1]['Columns'], v, ol, 7)
+        self.addToPrintList("TR", v[1]['TR'], v, ol, 8)
+        self.addToPrintList("TE", v[1]['TE'], v, ol, 9)
         self["os_handle"] = v[0]
-        # self.addToPrintList("NUM", v[1]['Number'], v, ol, 10)
+        self.addToPrintList("NUM", v[1]['Number'], v, ol, 10)
         self.addToPrintList("MEAN", vol(v, sample_size, "Mean",folder_foregrounds, ch_flag), v, ol, 11)
         self.addToPrintList("RNG", vol(v, sample_size, "Range",folder_foregrounds, ch_flag), v, ol, 12)
         self.addToPrintList("VAR", vol(v, sample_size, "Variance",folder_foregrounds, ch_flag), v, ol, 13)
@@ -237,6 +238,13 @@ def foreground(img,save_folder,v,inumber):
         ots[(new > threshold_otsu(new)) == True] = 1 
         # Obtain convex hull of the thresholded image
         conv_hull = convex_hull_image(ots)
+        
+#        # Create a green line in-between the foreground and the background
+#        contour, _ = cv2.findContours(np.array(conv_hull, dtype = np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#        border_points = contour[0][:, 0, :]
+#        for point in border_points:
+#            img[point[1], point[0]] = [0, 255, 0]   # Green colour
+            
         # Calculate the foreground and background images based on the convex hull
         ch = np.multiply(conv_hull, 1)
         fore_image = ch * img
@@ -251,73 +259,6 @@ def foreground(img,save_folder,v,inumber):
     # if not os.path.isdir(save_folder + os.sep + v[1]['ID']):
     return fore_image, back_image, conv_hull, img[conv_hull], img[conv_hull==False]
 
-
-# def vol(v, sample_size, kk,outi_folder, ch_flag):
-#     switcher={
-#             'Mean': mean,
-#             'Range': rang,
-#             'Variance': variance, 
-#             'CV': percent_coefficient_variation,
-#             'CPP': contrast_per_pixel,
-#             'PSNR': fpsnr,
-#             'SNR1': snr1,
-#             'SNR2': snr2,
-#             'SNR3': snr3,
-#             'SNR4': snr4,
-#             'CNR': cnr,
-#             'CVP': cvp,
-#             'CJV': cjv,
-#             'EFC': efc,
-#             'FBER': fber,
-#             }
-#     func=switcher.get(kk)
-#     M = []
-#     for i in range(1, len(v[0]), sample_size):
-#         I = v[0][i]
-# #        I = I - np.min(I)  # for CT 
-#         F, B, c, f, b = foreground(I,outi_folder,v,i, ch_flag)
-#         if np.std(F) == 0:  # whole zero slice, no measure computing
-#             continue
-#         measure = func(F, B, c, f, b)
-#         if np.isnan(measure) or np.isinf(measure):
-#             continue
-#             # measure = 0
-#         # To do (add something)
-#         M.append(measure)
-#     return np.mean(M)
-       
-
-# def foreground(img,save_folder,v,inumber, ch_flag):
-#     try:
-#         h = ex.equalize_hist(img[:,:])*255
-#         oi = np.zeros_like(img, dtype=np.uint16)
-#         oi[(img > threshold_otsu(img)) == True] = 1
-#         oh = np.zeros_like(img, dtype=np.uint16)
-#         oh[(h > threshold_otsu(h)) == True] = 1
-#         nm = img.shape[0] * img.shape[1]
-#         w1 = np.sum(oi)/(nm)
-#         w2 = np.sum(oh)/(nm)
-#         ots = np.zeros_like(img, dtype=np.uint16)
-#         new =( w1 * img) + (w2 * h)
-#         ots[(new > threshold_otsu(new)) == True] = 1 
-#         if ch_flag == 'True':
-#             conv_hull = convex_hull_object(ots)
-#         elif ch_flag == 'False':
-#             conv_hull = convex_hull_image(ots)
-#         conv_hull = convex_hull_image(ots)
-#         ch = np.multiply(conv_hull, 1)
-#         fore_image = ch * img
-#         back_image = (1 - ch) * img
-#     except Exception: 
-#         fore_image = img.copy()
-#         back_image = np.zeros_like(img, dtype=np.uint16)
-#         conv_hull = np.zeros_like(img, dtype=np.uint16)
-#         ch = np.multiply(conv_hull, 1)
-    
-#     # if not os.path.isdir(save_folder + os.sep + v[1]['ID']):
-#     if '_foreground_masks' in save_folder + os.sep + v[1]['ID']:
-#         plt.imsave(save_folder + os.sep + v[1]['ID'] +'(%d).png' % int(inumber+1), scipy.ndimage.rotate(ch,0), cmap = cm.Greys_r)
-#     return fore_image, back_image, conv_hull, img[conv_hull], img[conv_hull==False]
 
 
 # Computing the different metrics
