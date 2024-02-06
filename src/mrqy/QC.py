@@ -239,7 +239,7 @@ def worker_callback(s,fname_outdir):
         # Write comment lines for headers
         csv_report.write("\n".join(["#" + s for s in headers])+"\n")
         # Write comment line indicating the dataset and its output fields
-        csv_report.write("#dataset:"+"\t".join(s["output"])+"\n")
+        csv_report.write("#dataset:"+"\t".join(s["output"])+"\n")                   # VOIR ICI POUR AFFICHER LES IMAGES dans l'interface graphique
     
     # Write data to the CSV report file                     
     csv_report.write("\t".join([str(s[field]) for field in s["output"]])+"\n")
@@ -248,44 +248,44 @@ def worker_callback(s,fname_outdir):
     print('The results are updated.')
     
 
-##### TEST TSNE - UMAP sur les données calculées
-
-def tsv_to_dataframe(tsvfileaddress):
-    # Read the CSV file into a pandas dataframe, skipping the first two rows and using the third row as headers
-    # To consider only the calculated measures, use only the useful columns (Column 9 to 27)
-    return pd.read_csv(tsvfileaddress, sep='\t', skiprows=2, usecols=["#dataset:Patient","Name of Images", "MEAN", "RNG", "VAR", "CV", "CPP", "PSNR","SNR1", "SNR2", "SNR3", "SNR4", "CNR", "CVP", "CJV", "EFC", "FBER"], header=0)
-
-#############################################################
+def tsv_to_dataframe(tsvfileaddress):       # Creates a dataframe with all the data extracted from metadata and calculated from images
+    # This creates the dataframe used for the tables, graphs, charts, UMAP and TSNE.
+    # If you change things here (columns or rows used), it will modify what is shown in the user interface
+    return pd.read_csv(tsvfileaddress, sep='\t', skiprows=2, header=0)          # Read the CSV file into a pandas dataframe, skipping the first two rows and using the third row as headers  
+    
 
 def data_whitening(dframe):
     # Fill missing values with N/A in the dataframe
     dframe = dframe.fillna('N/A')
-    # Create a copy of the dataframe and select columns excluding object type
+    # Create a copy of the dataframe     
     df = dframe.copy()
+    # Select columns excluding object type
     df = df.select_dtypes(exclude=['object'])
-    # Apply whitening transformation to the selected numeric data
-    ds = whiten(df)
-    # Returns the transformed dataset
+    # Enter the names of the columns you want included for the UMAP and TSNE 
+    df = df[["MEAN", "RNG", "VAR", "CV", "CPP", "PSNR","SNR1", "SNR2", "SNR3", "SNR4", "CNR", "CVP", "CJV", "EFC", "FBER"]]
+    # Apply whitening transformation to the selected numeric data. The data calculated from the images are transformed to be used by UMAP and TSNE
+    ds = whiten(df)         
+    # Returns the transformed dataset : these are the data used by UMAP and TSNE
     return ds
 
 
 def tsne_umap(dataframe, per):
-    # Apply data whitening to the dataframe
+    # Apply data whitening to the dataframe. Is used for TSNE and UMAP
     ds = data_whitening(dataframe)
-    # Create a copy of the transformed dataframe for UMAP
-    ds_umap = ds.copy()
-    # Perform t-SNE on the transformed dataset
-    tsne = TSNE(n_components=2, random_state=0, perplexity = per)   # per : must be less than n subjects. default = 30. Usually between 5 and 50
-    tsne_obj = tsne.fit_transform(ds)
+    # Performs t-SNE on the transformed dataset. Perplexity must be less than n subjects. default = 30. Usually between 5 and 50
+    tsne = TSNE(n_components=2, random_state=0, perplexity = 5)
+    # Learns the parameters, fit to data and applies the transformation to new dataset
+    tsne_obj = tsne.fit_transform(ds)       
     # Add t-SNE components to the original DataFrame as 'x' and 'y'
     dataframe['x'] = tsne_obj[:,0].astype(float)
     dataframe['y'] = tsne_obj[:,1].astype(float)
-    # Perform UMAP dimensionality reduction
+    # Performs UMAP dimensionality reduction
     reducer = umap.UMAP()
-    embedding = reducer.fit_transform(ds_umap)
+    # Learns the parameters, fit to data and applies the transformation to new dataset                               
+    reducer_obj = reducer.fit_transform(ds)     
     # Add UMAP components to the original DataFrame as 'u' and 'v'
-    dataframe['u'] = embedding[:,0]
-    dataframe['v'] = embedding[:,1]
+    dataframe['u'] = reducer_obj[:,0]
+    dataframe['v'] = reducer_obj[:,1]
 
 
 def cleanup(final_address, per):
@@ -374,11 +374,11 @@ if __name__ == '__main__':
         ch_flag = args.c 
     
     # print(os.getcwd())
-    print_forlder_note = os.getcwd() + os.sep + 'UserInterface' 
-    # print_forlder_note = os.path.abspath(os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), os.pardir))+ os.sep + 'UserInterface' 
+    print_folder_note = os.getcwd() + os.sep + 'UserInterface' 
+    # print_folder_note = os.path.abspath(os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), os.pardir))+ os.sep + 'UserInterface' 
     
-    # print(print_forlder_note)
-    fname_outdir = print_forlder_note + os.sep + 'Data' + os.sep + args.output_folder_name
+    # print(print_folder_note)
+    fname_outdir = print_folder_note + os.sep + 'Data' + os.sep + args.output_folder_name
     
     overwrite_flag = "w"        
     headers.append(f"outdir:\t{os.path.realpath(fname_outdir)}") 
@@ -445,15 +445,6 @@ if __name__ == '__main__':
     # Create the path for the result TSV file
     address = fname_outdir + os.sep + "results" + ".tsv" 
     
-    ###############################
-    ###############################
-    
-    # Try to create new dataframe here to perform t-SNE and UMAP
-    # Only consider the calculated measures and not the measures extracted from the dicom files
-    
-    ###############################
-    ###############################
-    
             
     if len(names) < 6:
         # t-SNE and UMPA cannot be performed if we have less than 6 images
@@ -477,6 +468,6 @@ if __name__ == '__main__':
           "minutes for {} subjects and the overal {} MRI slices to run.".format(len(names),len(patients)))
     
     # Provide guidance for viewing the final results in the MRQy interface
-    msg = "Please go to the '{}' directory and open up the 'index.html' file.\n".format(print_forlder_note) + \
+    msg = "Please go to the '{}' directory and open up the 'index.html' file.\n".format(print_folder_note) + \
     "Click on 'View Results' and select '{}' file.\n".format(fname_outdir + os.sep + "results.tsv")   
     print_msg_box(msg, indent=3, width=None, title="To view the final MRQy interface results:")
