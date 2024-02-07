@@ -1,8 +1,3 @@
-"""
-Created on Sun Feb 10 11:21:31 2019, Last update on Tue July 13 10:42:18 PM 2021
-
-@author: Amir Reza Sadri ars329@case.edu
-"""
 import sys
 import os
 import numpy as np
@@ -18,7 +13,7 @@ from itertools import accumulate
 import pandas as pd
 from scipy.cluster.vq import whiten
 from sklearn.manifold import TSNE
-import umap                             # import umap.umap_ as umap
+import umap
 import scipy
 from scipy.io import loadmat
 import warnings        
@@ -135,9 +130,7 @@ def volume_dicom(scans, name):
              'MFS': inf.MagneticFieldStrength,                  # Magnetic fiels strength from the file header
              'ROWS': int(inf.Rows),                             # Rows value of the volume
              'COLS': int(inf.Columns),                          # Columns value of the volume
-             # 'TR': format(inf.RepetitionTime, '.2f'),
              'TR': inf.RepetitionTime,                          # Repetition time value of the volume
-             # 'TE': format(inf.EchoTime, '.2f'),
              'TE': inf.EchoTime,                                # Echo time value of the volume
              'NUM': len(scans)                                  # Number of slice images in each volume
     }
@@ -163,12 +156,16 @@ def volume_dicom(scans, name):
     # images = PL['images'].to_numpy().astype(np.int64)
     images = np.stack([s.pixel_array for s in slices])
     images = images.astype(np.int64)
+    
+    # Returning the image volume and associated tags
     return images, tags
+
 
 # def volume_notdicom(scan, name):
 #     image_data, image_header = load(scan)
 #     images = [image_data[:,:,i] for i in range(np.shape(image_data)[2])]
 #     return images, name, image_header      
+
 
 time_dim = 5
 def volume_notdicom(scan, name, time_dim):
@@ -206,6 +203,7 @@ def saveThumbnails_dicom(v, output):
     print('The number of %d images are saved to %s' % (len(v[0]),output + os.sep + v[1]['ID']))
     return ffolder + os.sep + v[1]['ID']
 
+
 def saveThumbnails_mat(v, output):
     # Check if saving masks is enabled
     if save_masks_flag!='False':
@@ -225,7 +223,6 @@ def saveThumbnails_mat(v, output):
 
 
 def saveThumbnails_nondicom(v, output):
-    # print(len(v[0]),v[1], output)
     # Create a directory for images
     os.makedirs(output + os.sep + v[1])
     # Save images as thumbnails, with a rotation
@@ -233,6 +230,7 @@ def saveThumbnails_nondicom(v, output):
         plt.imsave(output + os.sep + v[1] + os.sep + v[1] + '(%d).png' % int(i+1), scipy.ndimage.rotate(v[0][i],270), cmap = cm.Greys_r)
         # print('image number %d out of %d is saved to %s' % (int(i+1), len(v[0]),output + os.sep + v[1]))
     print('The number of %d images are saved to %s' % (len(v[0]),output + os.sep + v[1]))
+
 
 def worker_callback(s,fname_outdir):
     # Access global variables
@@ -257,40 +255,44 @@ def worker_callback(s,fname_outdir):
     print('The results are updated.')
     
 
-def tsv_to_dataframe(tsvfileaddress):
-    # Read the CSV file into a pandas dataframe, skipping the first two rows and using the third row as headers
-    return pd.read_csv(tsvfileaddress, sep='\t', skiprows=2, header=0)
+def tsv_to_dataframe(tsvfileaddress):       # Creates a dataframe with all the data extracted from metadata and calculated from images
+    # This creates the dataframe used for the tables, graphs, charts, UMAP and TSNE.
+    # If you change things here (columns or rows used), it will modify what is shown in the user interface
+    return pd.read_csv(tsvfileaddress, sep='\t', skiprows=2, header=0)          # Read the CSV file into a pandas dataframe, skipping the first two rows and using the third row as headers
 
 
 def data_whitening(dframe):
     # Fill missing values with N/A in the dataframe
     dframe = dframe.fillna('N/A')
-    # Create a copy of the dataframe and select columns excluding object type
+    # Create a copy of the dataframe
     df = dframe.copy()
+    # Select columns excluding object type
     df = df.select_dtypes(exclude=['object'])
-    # Apply whitening transformation to the selected numeric data
-    ds = whiten(df)
-    # Returns the transformed dataset
+    # Enter the names of the columns you want included for the UMAP and TSNE 
+    df = df[["MEAN", "RNG", "VAR", "CV", "CPP", "PSNR","SNR1", "SNR2", "SNR3", "SNR4", "CNR", "CVP", "CJV", "EFC", "FBER"]]
+    # Apply whitening transformation to the selected numeric data. The data calculated from the images are transformed to be used by UMAP and TSNE
+    ds = whiten(df)         
+    # Returns the transformed dataset : these are the data used by UMAP and TSNE
     return ds
 
 
 def tsne_umap(dataframe, per):
-    # Apply data whitening to the dataframe
+    # Apply data whitening to the dataframe. Is used for TSNE and UMAP
     ds = data_whitening(dataframe)
-    # Create a copy of the transformed dataframe for UMAP
-    ds_umap = ds.copy()
-    # Perform t-SNE on the transformed dataset
-    tsne = TSNE(n_components=2, random_state=0, perplexity = per)
-    tsne_obj = tsne.fit_transform(ds)
+    # Performs t-SNE on the transformed dataset. Perplexity must be less than n subjects. default = 30. Usually between 5 and 50
+    tsne = TSNE(n_components=2, random_state=0, perplexity = 5)
+    # Learns the parameters, fit to data and applies the transformation to new dataset
+    tsne_obj = tsne.fit_transform(ds)       
     # Add t-SNE components to the original DataFrame as 'x' and 'y'
     dataframe['x'] = tsne_obj[:,0].astype(float)
     dataframe['y'] = tsne_obj[:,1].astype(float)
-    # Perform UMAP dimensionality reduction
+    # Performs UMAP dimensionality reduction
     reducer = umap.UMAP()
-    embedding = reducer.fit_transform(ds_umap)
+    # Learns the parameters, fit to data and applies the transformation to new dataset                               
+    reducer_obj = reducer.fit_transform(ds)     
     # Add UMAP components to the original DataFrame as 'u' and 'v'
-    dataframe['u'] = embedding[:,0]
-    dataframe['v'] = embedding[:,1]
+    dataframe['u'] = reducer_obj[:,0]
+    dataframe['v'] = reducer_obj[:,1]
 
 
 def cleanup(final_address, per):
@@ -449,18 +451,18 @@ if __name__ == '__main__':
     
     # Create the path for the result TSV file
     address = fname_outdir + os.sep + "results" + ".tsv" 
+    
             
-    # if len(names) < 6:
-          # t-SNE and UMPA cannot be performed if we have less than 6 images
-    #     print('Skipped the t-SNE and UMAP computation because of insufficient data. The UMAP and t-SNE process need at least 6 input data.')
-    #     df = tsv_to_dataframe(address)
-    # else:
-        
-    df = cleanup(address, 30)
-    df = df.drop(['Name of Images'], axis=1)
-    df = df.rename(columns={"#dataset:Patient": "Patient", 
+    if len(names) < 6:
+        # t-SNE and UMPA cannot be performed if we have less than 6 images
+        print('Skipped the t-SNE and UMAP computation because of insufficient data. The UMAP and t-SNE process need at least 6 input data.')
+        df = tsv_to_dataframe(address)
+    else:
+        df = cleanup(address, 30)
+        df = df.drop(['Name of Images'], axis=1)
+        df = df.rename(columns={"#dataset:Patient": "Patient", 
                             "x":"TSNEX","y":"TSNEY", "u":"UMAPX", "v":"UMAPY" })
-    df = df.fillna('N/A')
+        df = df.fillna('N/A')
     
     # t-SNE and UMPA cannot be performed if we have less than 6 images    
     df.to_csv(fname_outdir + os.sep +'IQM.csv',index=False)

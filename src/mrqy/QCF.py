@@ -1,16 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Nov 22 16:45:32 2020
-
-@author: Amir Reza Sadri
-"""
-
-"""
-Created on Sun Feb 10 11:21:31 2019, Last update on Mon Feb 08 08:24:05 2021
-
-@author: Amir Reza Sadri
-"""
-
 import os
 import numpy as np
 from scipy.signal import convolve2d as conv2
@@ -19,7 +6,6 @@ from skimage.morphology import convex_hull_image,convex_hull_object
 from skimage import exposure as ex
 from skimage.filters import median
 from skimage.morphology import square
-# from skimage.util import pad          pad is not available in skimage==0.19.2
 import warnings
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -48,8 +34,7 @@ class BaseVolume_dicom(dict):
             if i != 0:
                 self.addToPrintList(j, v[1][j], v, ol, i)
         
-        # Set dictionary keys with corresponding values for various calculations
-        
+        # Add information to the ouptut list
         self.addToPrintList("MFR", v[1]['Manufacturer'], v, ol, 1)
         self.addToPrintList("MFS", v[1]['MFS'], v, ol, 2)
         self.addToPrintList("VRX", v[1]['VR_x'], v, ol, 3)
@@ -96,7 +81,7 @@ class BaseVolume_nondicom(dict):
         self["warnings"] = [] 
         self["output"] = []
         
-        # Add patient information to the output list
+        # Add information to the output list
         self.addToPrintList("Patient", v[1], v, ol, 170)
         self["outdir"] = fname_outdir
         self.addToPrintList("Name of Images", os.listdir(fname_outdir + os.sep + v[1]), v, ol, 100)
@@ -145,7 +130,7 @@ class BaseVolume_mat(dict):
         # Add patient information to the output list
         self.addToPrintList("Patient", v[1]['ID'], v, ol, 170)
         
-         # Add directory content to the output list
+         # Add information to the output list
         self["outdir"] = fname_outdir
         self.addToPrintList("Name of Images", os.listdir(fname_outdir + os.sep + v[1]['ID']), v, ol, 100)
         self.addToPrintList("ROWS", np.shape(v[0])[0], v, ol, 1)
@@ -176,14 +161,15 @@ class BaseVolume_mat(dict):
         if name != 'Name of Images' and il != 170:
             print('%s-%s. The %s of the patient with the name of <%s> is %s' % (ol,il,name, v[1]['ID'], val))
 
+
 def vol(v, sample_size, kk, outi_folder, ch_flag):
     # Dictionary mapping each metric's name to its corresponding function
     switcher={
             'Mean': mean,
             'Range': rang,
             'Variance': variance, 
-            'CV': percent_coefficient_variation,
-            'CPP': contrast_per_pixel,
+            'CV': cv,
+            'CPP': cpp,
             'PSNR': fpsnr,
             'SNR1': snr1,
             'SNR2': snr2,
@@ -201,7 +187,7 @@ def vol(v, sample_size, kk, outi_folder, ch_flag):
     # Iterate through the volume data
     for i in range(1, len(v[0]), sample_size):
         I = v[0][i]
-#        I = I - np.min(I)  # for CT 
+        # I = I - np.min(I)  # for CT 
         # Calculate foreground and background intensities
         F, B, c, f, b = foreground(I,outi_folder,v,i)
         # Check if the standard deviation of foreground is zero, skip computing measures
@@ -212,7 +198,6 @@ def vol(v, sample_size, kk, outi_folder, ch_flag):
         # If the measure is NaN or infinite, skip and continue
         if np.isnan(measure) or np.isinf(measure):
             continue
-            # measure = 0
         # Append the calculated measure
         M.append(measure)
     # Return the mean of all calculated measures
@@ -256,90 +241,92 @@ def foreground(img,save_folder,v,inumber):
         conv_hull = np.zeros_like(img, dtype=np.uint16)
         ch = np.multiply(conv_hull, 1)
     
-    # if not os.path.isdir(save_folder + os.sep + v[1]['ID']):
+    # if not os.path.isdir(save_folder + os.sep + v[1]['ID']):                              # VOIR ICI POUR LE CONTOUR DE LA ZONE ET LA SAUVEGARDE DE L'IMAGE
     return fore_image, back_image, conv_hull, img[conv_hull], img[conv_hull==False]
 
 
+################################################################
+##############  Computing the different metrics  ###############
+################################################################
 
-# Computing the different metrics
+# All the computed measurements are average values over the entire volume, which are calculated for every single slice separately.
+# 
 
+# Mean of the foreground intensity values
 def mean(F, B, c, f, b):
     return np.nanmean(f)
 
-
+# Range of the foreground intensity values
 def rang(F, B, c, f, b):
     return np.ptp(f)
 
-
+# Variance of the foreground intensity values
 def variance(F, B, c, f, b):
     return np.nanvar(f)
 
-
-def percent_coefficient_variation(F, B, c, f, b):
+# Percentage of variation coefficent : standard deviation over the mean of the foreground intensity values
+def cv(F, B, c, f, b):
     return (np.nanstd(f)/np.nanmean(f))*100
 
-
-def contrast_per_pixel(F, B, c, f, b):
+# Contrast per pixel : mean of the foreground intensity values after applying a 3x3 2D Laplacian filter
+def cpp(F, B, c, f, b):
     filt = np.array([[ -1/8, -1/8, -1/8],[-1/8, 1, -1/8],[ -1/8, -1/8,  -1/8]])
     I_hat = conv2(F, filt, mode='same')
     return np.nanmean(I_hat)
 
-
+# Peak signal to noise ratio of the foreground intensity values
 def psnr(img1, img2):
     mse = np.square(np.subtract(img1, img2)).mean()
     return 20 * np.log10(np.nanmax(img1) / np.sqrt(mse))
-
-
 def fpsnr(F, B, c, f, b):
     I_hat = median(F/np.max(F), square(5))
     return psnr(F, I_hat)
 
-
+# Signal to noise ratio : foreground standard deviation divided by background standard deviation
 def snr1(F, B, c, f, b):
     return np.nanstd(f) / np.nanstd(b)
 
-
+# Patch : random 5x5 square patch of the image
 def patch(img, patch_size):
     h = int(np.floor(patch_size / 2))
-    # U = pad(img, pad_width=h, mode='constant')
     U = np.pad(img, pad_width=5, mode='constant')
     [a,b]  = np.where(img == np.max(img))
     a = a[0]
     b = b[0]
     return U[a:a+2*h+1,b:b+2*h+1]
 
-
+# Signal to noise ratio : mean of the foreground patch divided by background standard deviation
 def snr2(F, B, c, f, b):
     fore_patch = patch(F, 5)
     return np.nanmean(fore_patch) / np.nanstd(b)
 
-
+# Signal to noise ratio : foreground patch standard deviation divided by the centered foreground patch standard deviation
 def snr3(F, B, c, f, b):
     fore_patch = patch(F, 5)
     return np.nanmean(fore_patch)/np.nanstd(fore_patch - np.nanmean(fore_patch))
 
-
+# Signal to noise ratio : mean of the foreground patch divided by the mean of the background patch 
 def snr4(F, B, c, f, b):
     fore_patch = patch(F, 5)
     back_patch = patch(B, 5)
     return np.nanmean(fore_patch) / np.nanstd(back_patch)
 
-
+# Contrast to noise ratio : mean of the foreground and background patches difference divided by background patch standard deviation
 def cnr(F, B, c, f, b):
     fore_patch = patch(F, 5)
     back_patch = patch(B, 5)
     return np.nanmean(fore_patch-back_patch) / np.nanstd(back_patch)
 
-
+# Coefficient of variation of the foreground patch : foreground patch standard deviation divided by foreground patch mean
 def cvp(F, B, c, f, b):
     fore_patch = patch(F, 5)
     return np.nanstd(fore_patch) / np.nanmean(fore_patch)
 
-
+# Coefficient of joint variation between the foreground and background
 def cjv(F, B, c, f, b):
     return (np.nanstd(f) + np.nanstd(b)) / abs(np.nanmean(f) - np.nanmean(b))
 
-
+# Entropy focus criterion
 def efc(F, B, c, f, b):
     n_vox = F.shape[0] * F.shape[1]
     efc_max = 1.0 * n_vox * (1.0 / np.sqrt(n_vox)) * \
@@ -349,7 +336,7 @@ def efc(F, B, c, f, b):
     return float((1.0 / abs(efc_max)) * np.sum(
         (F / b_max) * np.log((F + 1e16) / b_max)))
 
-
+# Foreground-background energy ratio
 def fber(F, B, c, f, b):
     fg_mu = np.nanmedian(np.abs(f) ** 2)
     bg_mu = np.nanmedian(np.abs(b) ** 2)

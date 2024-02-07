@@ -450,8 +450,7 @@ if __name__ == '__main__':
         # t-SNE and UMPA cannot be performed if we have less than 6 images
         print('Skipped the t-SNE and UMAP computation because of insufficient data. The UMAP and t-SNE process need at least 6 input data.')
         df = tsv_to_dataframe(address)
-    else:
-        
+    else:    
         df = cleanup(address, 30)
         df = df.drop(['Name of Images'], axis=1)
         df = df.rename(columns={"#dataset:Patient": "Patient", 
