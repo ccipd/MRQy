@@ -1,7 +1,7 @@
-from setuptools import setup, find_packages
+"""
+For the time being, pip still might require a setup.py file to support editable installs.
+There is no need to use setup.py.
+"""
+from setuptools import setup
 
-setup(
-    name="mrqy",
-    version="0.1",
-    package_dir={'': 'src'}, 
-    packages=find_packages(where='src'))
+setup()
