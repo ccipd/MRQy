@@ -1,0 +1,9 @@
+
+recursive-exclude api *
+recursive-exclude *_local *
+recursive-exclude scripts *
+recursive-exclude * tests
+
+include VERSION
+
+recursive-include mrqy *.py
