@@ -1,0 +1,53 @@
+# https://peps.python.org/pep-0621/
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mrqy"
+dynamic = ["version"]
+authors = [{ name = "Satish Viswanath", email = "satish.viswanath@case.edu" }]
+description = "MRQy is a quality assurance and checking tool for quantitative assessment of magnetic resonance imaging (MRI) data."
+
+keywords = ["MRI", "CT"]
+license = { text = "BSD 3-Clause Clear License" }
+# https://github.com/pypi/warehouse/issues/869
+readme = "README.rst"
+requires-python = ">=3.6"
+classifiers = [
+  "Programming Language :: Python :: 3.8",
+  "License :: OSI Approved :: BSD License",
+  "Operating System :: OS Independent",
+]
+
+
+dependencies = [
+  'importlib-metadata; python_version<"3.8"', 
+  "numpy >= 1.23.1",   
+  "medpy >= 0.4.0", 
+  "matplotlib >= 3.5.1",  
+  "pydicom >= 2.3.0",
+  "pandas >= 1.4.2",  
+  "scipy >= 1.8.0",  
+  "scikit-learn >= 1.0.2",  
+  "scikit-image >= 0.19.2",  
+  "umap-learn >= 0.5.3", 
+]
+
+[tool.setuptools]
+packages = ["mrqy"]
+
+[tool.setuptools.dynamic]
+version = {file = ["VERSION"]}
+
+[tool.black]
+line-length = 88
+target-version = ["py38"]
+
+[tool.ruff]
+
+[tool.isort]
+profile = "black"
+known_first_party = "mrqy"
+skip_glob = ["**/__init__.py"]
