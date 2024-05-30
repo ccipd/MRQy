@@ -10,3 +10,4 @@ env_invent
 dist/
 build/
 radqy.egg-info/
+.pypirc
