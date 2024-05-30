@@ -4,3 +4,9 @@ __pycache__/*
 
 env
 env_invent
+
+
+# Build files
+dist/
+build/
+radqy.egg-info/
