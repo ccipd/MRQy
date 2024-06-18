@@ -2,7 +2,7 @@ import os
 import numpy as np
 from scipy.signal import convolve2d as conv2
 from skimage.filters import threshold_otsu
-from skimage.morphology import convex_hull_image,convex_hull_object
+from skimage.morphology import convex_hull_image
 from skimage import exposure as ex
 from skimage.filters import median
 from skimage.morphology import square
@@ -10,7 +10,6 @@ import warnings
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import scipy
-import cv2
 
 warnings.filterwarnings("ignore")
 
@@ -206,43 +205,36 @@ def vol(v, sample_size, kk, outi_folder, ch_flag):
 
 def foreground(img,save_folder,v,inumber):
     try:
-        # Perform histogram equalization on the image
-        h = ex.equalize_hist(img[:,:])*255
+        # Perform adaptive histogram equalization on the image
+        h = ex.equalize_adapthist(img[:,:])*255
         # Binary thresholding using Otsu's method on the original and histogram-equalized images
-        oi = np.zeros_like(img, dtype=np.uint16)
+        oi = np.zeros_like(img, dtype=np.uint16)            # Otsu thresholding of the original image
         oi[(img > threshold_otsu(img)) == True] = 1
-        oh = np.zeros_like(img, dtype=np.uint16)
+        oh = np.zeros_like(img, dtype=np.uint16)            # Otsu trhesholding of the equalized image
         oh[(h > threshold_otsu(h)) == True] = 1
         # Compute weights for the images based on the thresholding results
         nm = img.shape[0] * img.shape[1]
-        w1 = np.sum(oi)/(nm)
-        w2 = np.sum(oh)/(nm)
+        w1 = np.sum(oi)/(nm)                # w1 = weight of Otsu on original image
+        w2 = np.sum(oh)/(nm)                # w2 = weight of Otsu on equalized image
         # Compute a new image using the calculated weights
         ots = np.zeros_like(img, dtype=np.uint16)
-        new =( w1 * img) + (w2 * h)
+        new = (w1 * img) + (w2 * h)
         ots[(new > threshold_otsu(new)) == True] = 1 
         # Obtain convex hull of the thresholded image
         conv_hull = convex_hull_image(ots)
-        
-#        # Create a green line in-between the foreground and the background
-#        contour, _ = cv2.findContours(np.array(conv_hull, dtype = np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-#        border_points = contour[0][:, 0, :]
-#        for point in border_points:
-#            img[point[1], point[0]] = [0, 255, 0]   # Green colour
-            
         # Calculate the foreground and background images based on the convex hull
         ch = np.multiply(conv_hull, 1)
         fore_image = ch * img
         back_image = (1 - ch) * img
-    except Exception: 
+    except Exception:
         # If an exception occurs, return default values
         fore_image = img.copy()
         back_image = np.zeros_like(img, dtype=np.uint16)
         conv_hull = np.zeros_like(img, dtype=np.uint16)
         ch = np.multiply(conv_hull, 1)
-    
-    # if not os.path.isdir(save_folder + os.sep + v[1]['ID']):                              # VOIR ICI POUR LE CONTOUR DE LA ZONE ET LA SAUVEGARDE DE L'IMAGE
-    return fore_image, back_image, conv_hull, img[conv_hull], img[conv_hull==False]
+        
+    # if not os.path.isdir(save_folder + os.sep + v[1]['ID']):                              
+    return fore_image, back_image, conv_hull, img[conv_hull], img[conv_hull==False]         # fore_image = F    back_image = B      conv_hull = c       img[conv_hull] = f      img[conv_hull==False] = b
 
 
 ################################################################
@@ -250,7 +242,6 @@ def foreground(img,save_folder,v,inumber):
 ################################################################
 
 # All the computed measurements are average values over the entire volume, which are calculated for every single slice separately.
-# 
 
 # Mean of the foreground intensity values
 def mean(F, B, c, f, b):

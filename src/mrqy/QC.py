@@ -13,6 +13,11 @@ from itertools import accumulate
 import pandas as pd
 from scipy.cluster.vq import whiten
 from sklearn.manifold import TSNE
+from skimage import exposure as ex
+from skimage.filters import threshold_otsu
+from skimage.measure import find_contours
+from skimage.morphology import convex_hull_image
+
 import umap
 import scipy
 from scipy.io import loadmat
@@ -101,7 +106,7 @@ def volume_dicom(scans, name):
     # Reading metadata from the first DICOM file
     inf = pydicom.dcmread(scans[0])
     
-    # Modyfying attributes if they axist
+                
     if hasattr(inf, 'MagneticFieldStrength'):
         if inf.MagneticFieldStrength > 10:
             inf.MagneticFieldStrength = inf.MagneticFieldStrength/10000
@@ -164,7 +169,6 @@ def volume_dicom(scans, name):
 def volume_notdicom(scan, name):
     # Loading image data and header
     image_data, image_header = load(scan)
-    # Extracting 2D images from the 3D image data
     images = [image_data[:,:,i] for i in range(np.shape(image_data)[2])]
     # Return image, name and image header
     return images, name, image_header      
@@ -238,8 +242,7 @@ def worker_callback(s,fname_outdir):
         first = False
         # Write comment lines for headers
         csv_report.write("\n".join(["#" + s for s in headers])+"\n")
-        # Write comment line indicating the dataset and its output fields
-        csv_report.write("#dataset:"+"\t".join(s["output"])+"\n")                   # VOIR ICI POUR AFFICHER LES IMAGES dans l'interface graphique
+        csv_report.write("#dataset:"+"\t".join(s["output"])+"\n")
     
     # Write data to the CSV report file                     
     csv_report.write("\t".join([str(s[field]) for field in s["output"]])+"\n")
@@ -331,10 +334,11 @@ if __name__ == '__main__':
     # Add the start time information to the headers list
     headers.append(f"start_time:\t{datetime.datetime.now()}")
     # Parse command-line arguments
-    parser = argparse.ArgumentParser(description='')
+    parser = argparse.ArgumentParser(description='')    # Path for the output folder name
     parser.add_argument('output_folder_name',
                         help = "the subfolder name on the '...\\UserInterface\\Data\\output_folder_name' directory.",
                         type=str)
+    # Path for the input directory
     parser.add_argument('inputdir',
                         help = "input foldername consists of *.mha (*.nii or *.dcm) files. For example: 'E:\\Data\\Rectal\\input_data_folder'",
                         nargs = "*")
@@ -374,11 +378,9 @@ if __name__ == '__main__':
         ch_flag = args.c 
     
     # print(os.getcwd())
-    print_folder_note = os.getcwd() + os.sep + 'UserInterface' 
-    # print_folder_note = os.path.abspath(os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), os.pardir))+ os.sep + 'UserInterface' 
-    
+    print_folder_note = os.getcwd() + os.sep + 'UserInterface'                                  # Les résultats vont dans le dossier UserInterface (dans MRQy)
     # print(print_folder_note)
-    fname_outdir = print_folder_note + os.sep + 'Data' + os.sep + args.output_folder_name
+    fname_outdir = print_folder_note + os.sep + 'Data' + os.sep + args.output_folder_name       # Un dossier "Data" dans UserInterface va contenir les résultats de l'analyse des images
     
     overwrite_flag = "w"        
     headers.append(f"outdir:\t{os.path.realpath(fname_outdir)}") 
@@ -445,7 +447,7 @@ if __name__ == '__main__':
     # Create the path for the result TSV file
     address = fname_outdir + os.sep + "results" + ".tsv" 
     
-            
+
     if len(names) < 6:
         # t-SNE and UMPA cannot be performed if we have less than 6 images
         print('Skipped the t-SNE and UMAP computation because of insufficient data. The UMAP and t-SNE process need at least 6 input data.')
@@ -453,13 +455,71 @@ if __name__ == '__main__':
     else:    
         df = cleanup(address, 30)
         df = df.drop(['Name of Images'], axis=1)
-        df = df.rename(columns={"#dataset:Patient": "Patient", 
-                                "x":"TSNEX","y":"TSNEY", "u":"UMAPX", "v":"UMAPY" })
+        df = df.rename(columns={"#dataset:Patient": "Patient", "x":"TSNEX","y":"TSNEY", "u":"UMAPX", "v":"UMAPY" })
         df = df.fillna('N/A')
-    
+
     # Save processed data as IQM.csv
-    df.to_csv(fname_outdir + os.sep +'IQM.csv',index=False)
+    df.to_csv(fname_outdir + os.sep + 'IQM.csv', index=False)
     print("The IQMs data are saved in the {} file. ".format(fname_outdir + os.sep + "IQM.csv"))
+    
+    # Draw the contours of the ROI after the analysis is done so that the contours don't interfere with the measures
+    # This is useful if you want to verify that that the ROI includes the head/brain/bodypart so that the metrics are calculated correctly
+    def image_contour(input_folder, output_folder):
+        # Verify the files in the directory
+        for root, dirs, files in os.walk(input_folder):
+            output_root = os.path.join(output_folder, os.path.relpath(root, input_folder))
+            os.makedirs(output_root, exist_ok=True)
+            for file in files:
+                if file.endswith('csv') or file.endswith('.tsv'):
+                    continue
+                input_path = os.path.join(root, file)
+                output_path = os.path.join(output_root, file)
+                img = plt.imread(input_path)
+                # Get input image shape
+                input_height, input_width = img.shape[:2]
+                # Convert to grayscale
+                if img.shape[2] == 4:
+                    img = img[:,:,:3]   # exclude the alpha channel
+                img = img.mean(axis=2)
+                # Perform adaptive equalization of the image 
+                ae = ex.equalize_adapthist(img)
+                # oi = Otsu thresholding of the original image
+                oi = np.zeros_like(img, dtype=np.uint16)            
+                oi[(img > threshold_otsu(img)) == True] = 1
+                # oa = Otsu thresholding of the adaptive equalized image
+                oa = np.zeros_like(img, dtype=np.uint16)            
+                oa[(ae > threshold_otsu(ae)) == True] = 1
+                # Compute weights for the images nased on the thresholding results
+                nm = img.shape[0] * img.shape[1]
+                w1 = np.sum(oi)/(nm)        # w1 = weight of Otsu on original image (img)
+                w2 = np.sum(oa)/(nm)        # w2 = weight of Otsu on adaptive equalized (ae)
+                # New image using the weights of the Otsu thresholding and adaptive equalization
+                ots = np.zeros_like(img, dtype=np.uint16)                     
+                new = (w1 * img) + (w2 * ae)
+                ots[(new > threshold_otsu(new)) == True] = 1
+                # Convex hull of the new image using the weights of the Otsu thresholding and adaptive equalization (ots_2)
+                conv_hull = convex_hull_image(ots)
+                # Compute foreground image
+                ch = np.multiply(conv_hull, 1)
+                fore_image = ch * img
+                # Make sure the output image has the same shape as input image
+                fore_image = fore_image[:input_height, :input_width]
+                # Defintion to draw the contours
+                def contours(conv_hull):
+                    # Find contours of the foreground image (= the convex_hull)
+                    contours = find_contours(conv_hull)
+                    for contour in contours:
+                        plt.plot(contour[:, 1], contour[:, 0], linewidth=3, color='green')
+                        plt.axis('off')
+                # contours(fore_image, conv_hull)
+                plt.imshow(fore_image, cmap='gray') ; contours(conv_hull)
+                plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
+                plt.close()
+    
+    input_folder = fname_outdir                             # Where the .png are saved
+    output_folder = fname_outdir + '_contours'              # Where the _contours.png are saved
+    image_contour(input_folder, output_folder)
+    
     
     # Print execution information
     print("Done!")
