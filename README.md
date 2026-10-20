@@ -77,19 +77,19 @@ pip install -r requirements.txt
 Basic command:
 
 ```bash
-python backend/main.py --inputdir "PATH_TO_DICOM_DATASET" --scantype mri
+python backend/radqy.py --inputdir "PATH_TO_DICOM_DATASET" --scantype mri
 ```
 
 For CT data:
 
 ```bash
-python backend/main.py --inputdir "PATH_TO_DICOM_DATASET" --scantype ct
+python backend/radqy.py --inputdir "PATH_TO_DICOM_DATASET" --scantype ct
 ```
 
 Example with options:
 
 ```bash
-python backend/main.py ^
+python backend/radqy.py ^
   --inputdir "E:\Data\Rectal\input_data_folder" ^
   --scantype mri ^
   --middle-percent 50 ^
