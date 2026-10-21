@@ -108,7 +108,7 @@ python backend/radqy.py ^
 --middle-percent    Percent of middle slices to process
 --num-samples       Slice sampling stride
 --save-fgbg         Save foreground/background masks
---segmenter         Segmentation method: otsuhull (default, adaptiveborder, unet)
+--segmenter         Segmentation method: otsuhull (default), adaptiveborder, unet
 --verbose           Print detailed per-file processing progress
 ```
 ### Slice Selection and Mask Export
